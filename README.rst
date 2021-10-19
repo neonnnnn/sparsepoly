@@ -18,7 +18,7 @@ This package provides some solvers for optimizing FM-like models with some regul
 - proximal coordinate descent (PCD) algorithm for fitting higher-order factorization machines with
     - L1, SquaredL12, and OmegaTI regularization,
 - proximal block coordinate descent (PBCD) algorithm for fitting higher-order factorization machines with
-    - L1, L21, SquaredL21, and OmegaCS regularization
+    - L1, L21, SquaredL21, and OmegaCS regularization,
 - mini-batch proximal stochastic gradient descent (PSGD) algorithm for fitting factorization machines with
     - L1, L21, SquaredL12, and SquaredL21 regularization,
 - PCD algorithm for fitting all-subsets models with
@@ -49,6 +49,10 @@ Installation
     python setup.py build
     python setup.py install
 
+References
+---------
+
+- Kyohei Atarashi, Satoshi Oyama, and Masahito Kurihara. Factorization Machines with Regularization for Sparse Feature Interactions. Journal of Machine Learning Research, 22(153), pp. 1--50, 2021.
 
 Authors
 -------
