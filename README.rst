@@ -25,7 +25,7 @@ This package provides some solvers for optimizing FM-like models with some regul
     - L1 and OmegaTI regularization,
 - PBCD algorithm for fitting all-subsets model with
     - L21 and OmegaCS regularization,
-- `polylearn <https://github.com/scikit-learn-contrib/polylearn>`_-compatible API,
+- `polylearn <https://github.com/scikit-learn-contrib/polylearn>`_-compatible API.
 
 Installation
 ------------
