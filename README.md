@@ -1,7 +1,4 @@
-.. -*- mode: rst -*-
-
-sparsepoly
-=========
+# sparsepoly
 
 A polylearn-like library for **sparse factorization machines** and thier variants
 for classification and regression in Python.
@@ -25,36 +22,34 @@ This package provides some solvers for optimizing FM-like models with some regul
     - L1 and OmegaTI regularization,
 - PBCD algorithm for fitting all-subsets model with
     - L21 and OmegaCS regularization,
-- `polylearn <https://github.com/scikit-learn-contrib/polylearn>`_-compatible API.
+- and [polylearn](https://github.com/scikit-learn-contrib/polylearn)-compatible API.
 
-Installation
-------------
+## Installation
 
-1. Download the sources by::
-
+1. Download the sources by:
+```bash
     git clone https://github.com/neonnnnn/sparsepoly.git
- 
+```
  
 2. Install the dependencies::
-
+```bash
     pip install -r requirements.txt
+```
+
+3. Install the polylearn, please see [polylearn](https://github.com/scikit-learn-contrib/polylearn) installation.
 
 
-3. Install the polylearn, please see `polylearn <https://github.com/scikit-learn-contrib/polylearn>`_ installation.
-
-
-4. Build and install sparsepoly::
-
+4. Build and install sparsepoly:
+```bash
     cd sparsepoly
     python setup.py build
     python setup.py install
-
-References
----------
+```
+## References
 
 - Kyohei Atarashi, Satoshi Oyama, and Masahito Kurihara. Factorization Machines with Regularization for Sparse Feature Interactions. Journal of Machine Learning Research, 22(153), pp. 1--50, 2021.
 
-Authors
+## Authors
 -------
 
 - Kyohei Atarashi, 2020-present
