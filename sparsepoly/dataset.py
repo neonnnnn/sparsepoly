@@ -2,18 +2,18 @@
 # Author: Kyohei Atarashi
 # License: MIT
 
-import numpy as np
-import scipy.sparse as sp
-from numba import int32, float64
-from numba.experimental import jitclass
 from abc import ABCMeta, abstractmethod
 
+import numpy as np
+import scipy.sparse as sp
+from numba import float64, int32
+from numba.experimental import jitclass
 
 spec_dense = [
     ("n_samples", int32),
     ("n_features", int32),
     ("X", float64[:, :]),
-    ("indices", int32[:])
+    ("indices", int32[:]),
 ]
 
 
@@ -45,13 +45,13 @@ class FortranDataset(object):
         self.n_features = X.shape[1]
         self.X = X
         self.indices = np.arange(self.n_samples, dtype=np.int32)
- 
+
     def get_n_samples(self):
         return self.n_samples
 
     def get_n_features(self):
         return self.n_features
-    
+
     def count_nonzero(self):
         return self.n_features * self.n_samples
 
@@ -64,8 +64,9 @@ spec_sparse = [
     ("n_features", int32),
     ("data", float64[:]),
     ("indices", int32[:]),
-    ("indptr", int32[:])
+    ("indptr", int32[:]),
 ]
+
 
 @jitclass(spec_sparse)
 class CSRDataset(object):
@@ -73,21 +74,21 @@ class CSRDataset(object):
         self.n_samples = n_samples
         self.n_features = n_features
         self.data = data
-        self.indices =  indices
+        self.indices = indices
         self.indptr = indptr
- 
+
     def get_n_samples(self):
         return self.n_samples
 
     def get_n_features(self):
         return self.n_features
-    
+
     def count_nonzero(self):
         return len(self.data)
 
     def get_row(self, i):
         start = self.indptr[i]
-        end = self.indptr[i+1]
+        end = self.indptr[i + 1]
         n_nz = end - start
         return n_nz, self.indices[start:end], self.data[start:end]
 
@@ -98,7 +99,7 @@ class CSCDataset(object):
         self.n_samples = n_samples
         self.n_features = n_features
         self.data = data
-        self.indices =  indices
+        self.indices = indices
         self.indptr = indptr
 
     def get_n_samples(self):
@@ -106,13 +107,13 @@ class CSCDataset(object):
 
     def get_n_features(self):
         return self.n_features
-    
+
     def count_nonzero(self):
         return len(self.data)
 
     def get_column(self, j):
         start = self.indptr[j]
-        end = self.indptr[j+1]
+        end = self.indptr[j + 1]
         n_nz = end - start
         return n_nz, self.indices[start:end], self.data[start:end]
 
@@ -121,12 +122,10 @@ def get_dataset(X, order="c"):
     if sp.isspmatrix(X):
         if order == "fortran":
             X = X.tocsc()
-            ds = CSCDataset(X.shape[0], X.shape[1], 
-                            X.data, X.indices, X.indptr)
+            ds = CSCDataset(X.shape[0], X.shape[1], X.data, X.indices, X.indptr)
         else:
             X = X.tocsr()
-            ds = CSRDataset(X.shape[0], X.shape[1],
-                            X.data, X.indices, X.indptr)
+            ds = CSRDataset(X.shape[0], X.shape[1], X.data, X.indices, X.indptr)
     else:
         if order == "fortran":
             X = np.asfortranarray(X, dtype=np.float64)

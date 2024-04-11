@@ -1,5 +1,6 @@
-from .regularizer import L1, L21, SquaredL12, SquaredL21, OmegaTI, OmegaCS
-from .sparse_factorization_machines import SparseFactorizationMachineRegressor
-from .sparse_factorization_machines import SparseFactorizationMachineClassifier
-from .sparse_all_subsets import SparseAllSubsetsRegressor
-from .sparse_all_subsets import SparseAllSubsetsClassifier
+from .regularizer import L1, L21, OmegaCS, OmegaTI, SquaredL12, SquaredL21
+from .sparse_all_subsets import SparseAllSubsetsClassifier, SparseAllSubsetsRegressor
+from .sparse_factorization_machines import (
+    SparseFactorizationMachineClassifier,
+    SparseFactorizationMachineRegressor,
+)

@@ -2,8 +2,9 @@
 # Author: Kyohei Atarashi
 # License: MIT
 
-from math import log, exp
 from abc import ABCMeta, abstractmethod
+from math import exp, log
+
 from numba import float64
 from numba.experimental import jitclass
 
@@ -71,12 +72,10 @@ class SquaredHinge(object):
         return 0.0
 
 
-REGRESSION_LOSSES = {
-    'squared': Squared()
-}
+REGRESSION_LOSSES = {"squared": Squared()}
 
 CLASSIFICATION_LOSSES = {
-    'squared': Squared(),
-    'squared_hinge': SquaredHinge(),
-    'logistic': Logistic()
+    "squared": Squared(),
+    "squared_hinge": SquaredHinge(),
+    "logistic": Logistic(),
 }

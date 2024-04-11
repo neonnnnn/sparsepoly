@@ -1,5 +1,7 @@
-import numpy as np
 from math import sqrt
+
+import numpy as np
+
 from .utils import norm, prox_squaredl12
 
 
@@ -10,9 +12,9 @@ class SquaredL21Slow(object):
     def eval(self, P):
         axis = -2 if self.transpose else -1
         return norm(norm(P, ord=2, axis=axis), ord=1, axis=-1) ** 2
-    
+
     def prox_bcd(self, P, strength, degree, j):
-        P[j] /= (1+2*strength)
+        P[j] /= 1 + 2 * strength
         l2 = sqrt(np.dot(P[j], P[j]))
         norms = norm(P, 2, axis=1)
         norms[j] = 0.0
@@ -28,4 +30,4 @@ class SquaredL21Slow(object):
         prox_squaredl12(norms, strength)
         norms[norms <= strength] = np.inf
         norms = np.expand_dims(norms, axis=axis)
-        P *= (1.0 - strength / norms)
+        P *= 1.0 - strength / norms
