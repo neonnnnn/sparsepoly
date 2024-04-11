@@ -9,22 +9,28 @@ import numpy as np
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_array
 from sklearn.utils.extmath import row_norms
-from polylearn.base import _BasePoly, _PolyClassifierMixin, _PolyRegressorMixin
 try:
     from sklearn.exceptions import NotFittedError
 except ImportError:
     class NotFittedError(ValueError, AttributeError):
         pass
 
-from .kernels import _poly_predict
+from .base import BaseSparsePoly, SparsePolyClassifierMixin, SparsePolyRegressorMixin
+from .kernels import poly_predict
 from .dataset import get_dataset
-from .regularizer import REGULARIZATION
+from .regularizer import L1, L21, OmegaCS, OmegaTI
 from .loss import CLASSIFICATION_LOSSES, REGRESSION_LOSSES
-from .pcd_all import _pcd_epoch
-from .pbcd_all import _pbcd_epoch
+from .pcd_all import pcd_epoch
+from .pbcd_all import pbcd_epoch
 
 
-class _BaseSparseAllSubsets(_BasePoly, metaclass=ABCMeta):
+class _BaseSparseAllSubsets(BaseSparsePoly, metaclass=ABCMeta):
+    _REGULARIZERS = {
+        "l1": L1,
+        "l21": L21,
+        "omegacs": OmegaCS,
+        "omegati": OmegaTI,
+    }
     @abstractmethod
     def __init__(self, loss='squared', n_components=2, solver="pcd", beta=1,
                  gamma=1, eta0=0.1, mean=False, tol=1e-6, regularizer='omegati',
@@ -77,9 +83,9 @@ class _BaseSparseAllSubsets(_BasePoly, metaclass=ABCMeta):
                 rng.shuffle(indices_component)
                 rng.shuffle(indices_feature)
 
-            viol += _pcd_epoch(self.P_, X, y, y_pred, self.lams_, beta,
-                               gamma, self.eta0, regularizer, loss_obj, A,
-                               indices_component, indices_feature)
+            viol += pcd_epoch(self.P_, X, y, y_pred, self.lams_, beta,
+                              gamma, self.eta0, regularizer, loss_obj, A,
+                              indices_component, indices_feature)
 
             if (self.callback is not None) and it % self.n_calls == 0:
                 if self.callback(self) is not None:
@@ -127,7 +133,7 @@ class _BaseSparseAllSubsets(_BasePoly, metaclass=ABCMeta):
             if self.shuffle:
                 rng.shuffle(indices_feature)
 
-            viol += _pbcd_epoch(
+            viol += pbcd_epoch(
                 P, X, y, y_pred, self.lams_,  beta, gamma, self.eta0,
                 regularizer, loss_obj, A, grad, inv_step_sizes,
                 p_j_old, indices_feature)
@@ -170,12 +176,7 @@ class _BaseSparseAllSubsets(_BasePoly, metaclass=ABCMeta):
         dataset = get_dataset(X, order="fortran")
         rng = check_random_state(self.random_state)
         loss_obj = self._get_loss(self.loss)
-
-        if isinstance(self.regularizer, str):
-            regularizer = REGULARIZATION[self.regularizer]()
-        else:
-            regularizer = self.regularizer
-
+        regularizer = self._get_regularizer(self.regularizer)
         if not (self.warm_start and hasattr(self, 'P_')):
             self.P_ = 0.01 * rng.randn(self.n_components, n_features)
 
@@ -213,7 +214,7 @@ class _BaseSparseAllSubsets(_BasePoly, metaclass=ABCMeta):
         return self
 
     def _get_output(self, X):
-        y_pred = _poly_predict(X, self.P_, self.lams_, 'all-subsets')
+        y_pred = poly_predict(X, self.P_, self.lams_, 'all-subsets')
 
         return y_pred
 
@@ -224,7 +225,7 @@ class _BaseSparseAllSubsets(_BasePoly, metaclass=ABCMeta):
         return self._get_output(X)
 
 
-class SparseAllSubsetsRegressor(_BaseSparseAllSubsets, _PolyRegressorMixin):
+class SparseAllSubsetsRegressor(_BaseSparseAllSubsets, SparsePolyRegressorMixin):
     """Sparse All-subsets model for regression (with squared loss).
     Parameters
     ----------
@@ -315,7 +316,7 @@ class SparseAllSubsetsRegressor(_BaseSparseAllSubsets, _PolyRegressorMixin):
             callback, n_calls, random_state)
 
 
-class SparseAllSubsetsClassifier(_BaseSparseAllSubsets, _PolyClassifierMixin):
+class SparseAllSubsetsClassifier(_BaseSparseAllSubsets, SparsePolyClassifierMixin):
     """Sparse all-subsets model for classification.
     Parameters
     ----------

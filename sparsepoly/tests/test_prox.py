@@ -1,5 +1,4 @@
 import numpy as np
-import torch
 from sparsepoly.regularizer import SquaredL12, SquaredL21
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 import pytest

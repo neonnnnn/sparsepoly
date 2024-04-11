@@ -7,17 +7,19 @@ from abc import ABCMeta, abstractmethod
 
 import numpy as np
 from sklearn.utils import check_random_state
-from sklearn.utils.extmath import row_norms
-from polylearn.base import _BasePoly, _PolyClassifierMixin, _PolyRegressorMixin
-from polylearn.factorization_machine import _BaseFactorizationMachine
+from sklearn.utils.extmath import row_norms, safe_sparse_dot
+from sklearn.utils.validation import check_array, NotFittedError
+from sklearn.preprocessing import add_dummy_feature
 
+from .base import BaseSparsePoly, SparsePolyClassifierMixin, SparsePolyRegressorMixin
 from .dataset import get_dataset
-from .regularizer import REGULARIZATION
+from .kernels import poly_predict
+from .regularizer import SquaredL12, SquaredL21, REGULARIZATION
 from .loss import CLASSIFICATION_LOSSES, REGRESSION_LOSSES
 from .cd_linear import _cd_linear_epoch
-from .psgd import _psgd_epoch
-from .pcd import _pcd_epoch
-from .pbcd import _pbcd_epoch
+from .psgd import psgd_epoch
+from .pcd import pcd_epoch
+from .pbcd import pbcd_epoch
 
 
 LEARNING_RATE = {
@@ -28,9 +30,8 @@ LEARNING_RATE = {
     }
 
 
-class _BaseSparseFactorizationMachine(
-    _BaseFactorizationMachine, metaclass=ABCMeta
-    ):
+class _BaseSparseFactorizationMachine(BaseSparsePoly, metaclass=ABCMeta):
+    _REGULARIZERS = REGULARIZATION
     @abstractmethod
     def __init__(self, degree=2, loss='squared', n_components=2, solver='pcd',
                  regularizer='squaredl12', alpha=1, beta=1, gamma=1, mean=False,
@@ -64,7 +65,15 @@ class _BaseSparseFactorizationMachine(
         self.callback = callback
         self.n_calls = n_calls
         self.random_state = random_state
-    
+
+    def _augment(self, X):
+        # for factorization machines, we add a dummy column for each order.
+        if self.fit_lower == 'augment':
+            k = 2 if self.fit_linear else 1
+            for _ in range(self.degree - k):
+                X = add_dummy_feature(X, value=1)
+        return X
+
     def _fit_psgd(self, X, y, regularizer, loss_obj, rng):
         n_samples = X.get_n_samples()
         n_features = X.get_n_features()
@@ -98,7 +107,7 @@ class _BaseSparseFactorizationMachine(
             if self.shuffle:
                 rng.shuffle(indices_samples)
 
-            sum_loss, self.it_ = _psgd_epoch(
+            sum_loss, self.it_ = psgd_epoch(
                 X, y, P, self.w_, self.lams_, self.degree, self.alpha,
                 self.beta, self.gamma, regularizer, loss_obj, A, dA, grad_P, 
                 grad_w, indices_samples, self.fit_linear, self.eta0,
@@ -161,12 +170,12 @@ class _BaseSparseFactorizationMachine(
 
             if self.fit_lower == 'explicit':
                 for deg in range(2, self.degree):
-                    viol += _pcd_epoch(self.P_[self.degree-deg], X, y, y_pred,
+                    viol += pcd_epoch(self.P_[self.degree-deg], X, y, y_pred,
                                        self.lams_, deg, beta, gamma, self.eta0,
                                        regularizer, loss_obj, A, dA,
                                        indices_component, indices_feature)
 
-            viol += _pcd_epoch(self.P_[0], X, y, y_pred, self.lams_,
+            viol += pcd_epoch(self.P_[0], X, y, y_pred, self.lams_,
                                self.degree, beta, gamma, self.eta0,
                                regularizer, loss_obj, A, dA, 
                                indices_component, indices_feature)
@@ -224,13 +233,13 @@ class _BaseSparseFactorizationMachine(
 
             if self.fit_lower == 'explicit':
                 for deg in range(2, self.degree):
-                    viol += _pbcd_epoch(
+                    viol += pbcd_epoch(
                         P[self.degree-deg], X, y, y_pred, self.lams_, deg,
                         beta, gamma, self.eta0, regularizer,
                         loss_obj, A, dA, grad, inv_step_sizes,
                         p_j_old, indices_feature)
 
-            viol += _pbcd_epoch(
+            viol += pbcd_epoch(
                 P[0], X, y, y_pred, self.lams_, self.degree, beta,
                 gamma, self.eta0, regularizer, loss_obj, A, dA,
                 grad, inv_step_sizes, p_j_old, indices_feature)
@@ -274,10 +283,7 @@ class _BaseSparseFactorizationMachine(
         n_features = X.shape[1]  # augmented
         rng = check_random_state(self.random_state)
         loss_obj = self._get_loss(self.loss)
-        if isinstance(self.regularizer, str):
-            regularizer = REGULARIZATION[self.regularizer]()
-        else:
-            regularizer = self.regularizer
+        regularizer = self._get_regularizer(self.regularizer)
 
         if not (self.warm_start and hasattr(self, 'w_')):
             self.w_ = np.zeros(n_features, dtype=np.double)
@@ -337,9 +343,29 @@ class _BaseSparseFactorizationMachine(
 
         return self
 
+    def _get_output(self, X):
+        y_pred = poly_predict(X, self.P_[0, :, :], self.lams_, kernel='anova',
+                              degree=self.degree)
+
+        if self.fit_linear:
+            y_pred += safe_sparse_dot(X, self.w_)
+
+        if self.fit_lower == 'explicit' and self.degree == 3:
+            # degree cannot currently be > 3
+            y_pred += poly_predict(X, self.P_[1, :, :], self.lams_,
+                                   kernel='anova', degree=2)
+
+        return y_pred
+
+    def _predict(self, X):
+        if not hasattr(self, "P_"):
+            raise NotFittedError("Estimator not fitted.")
+        X = check_array(X, accept_sparse='csc', dtype=np.double)
+        X = self._augment(X)
+        return self._get_output(X)
 
 class SparseFactorizationMachineRegressor(_BaseSparseFactorizationMachine,
-                                          _PolyRegressorMixin):
+                                          SparsePolyRegressorMixin):
     """Sparse factorization machine for regression (with squared loss).
 
     Parameters
@@ -522,7 +548,7 @@ class SparseFactorizationMachineRegressor(_BaseSparseFactorizationMachine,
 
 
 class SparseFactorizationMachineClassifier(_BaseSparseFactorizationMachine,
-                                           _PolyClassifierMixin):
+                                           SparsePolyClassifierMixin):
     """Sparse factorization machine for classification.
 
     Parameters
