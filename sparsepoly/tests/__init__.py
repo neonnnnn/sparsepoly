@@ -1,1 +1,2 @@
-from .regularizer import L1Slow, L21Slow, SquaredL12Slow, SquaredL21Slow, OmegaTISlow, OmegaCSSlow
+from .regularizer import (L1Slow, L21Slow, OmegaCSSlow, OmegaTISlow,
+                          SquaredL12Slow, SquaredL21Slow)

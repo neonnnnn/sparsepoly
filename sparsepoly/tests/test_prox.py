@@ -1,8 +1,8 @@
 import numpy as np
-from sparsepoly.regularizer import SquaredL12, SquaredL21
-from numpy.testing import assert_array_equal, assert_array_almost_equal
 import pytest
+from numpy.testing import assert_array_almost_equal, assert_array_equal
 
+from sparsepoly.regularizer import SquaredL12, SquaredL21
 
 n_features = 2000
 n_components = 100

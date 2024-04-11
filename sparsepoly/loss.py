@@ -2,8 +2,9 @@
 # Author: Kyohei Atarashi
 # License: MIT
 
-from math import log, exp
 from abc import ABCMeta, abstractmethod
+from math import exp, log
+
 from numba import float64
 from numba.experimental import jitclass
 

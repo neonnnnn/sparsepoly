@@ -1,8 +1,8 @@
 import numpy as np
-from numba import float64, boolean, int32
+from numba import boolean, float64, int32
 from numba.experimental import jitclass
-from .utils import norm, prox_squaredl12
 
+from .utils import norm, prox_squaredl12
 
 spec = [
     ("transpose", boolean),

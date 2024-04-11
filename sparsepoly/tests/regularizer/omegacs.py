@@ -1,6 +1,8 @@
-import numpy as np
-from .utils import norm
 from math import sqrt
+
+import numpy as np
+
+from .utils import norm
 
 
 class OmegaCSSlow(object):

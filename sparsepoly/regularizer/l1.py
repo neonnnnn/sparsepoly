@@ -1,7 +1,8 @@
 import numpy as np
-from .utils import soft_thresholding, norm
-from numba import float64, boolean
+from numba import boolean, float64
 from numba.experimental import jitclass
+
+from .utils import norm, soft_thresholding
 
 spec = [
     ("transpose", boolean),

@@ -2,23 +2,22 @@
 # Author: Kyohei Atarashi 
 # License: MIT
 
+import warnings
+from itertools import product
+
 import numpy as np
 import pytest
-from numpy.testing import assert_array_equal, assert_array_almost_equal
-
-from sparsepoly.kernels import poly_predict, all_subsets_kernel
-from sparsepoly.kernels import anova_kernel
+from numpy.testing import assert_array_almost_equal, assert_array_equal
 from sklearn.utils import check_random_state
-import warnings
-from sparsepoly import SparseAllSubsetsClassifier
-from sparsepoly import SparseAllSubsetsRegressor
-from sparsepoly import SparseFactorizationMachineClassifier
-from sparsepoly import SparseFactorizationMachineRegressor
-from .regularizer import L1Slow, SquaredL12Slow, OmegaTISlow
-from sparsepoly import L1, SquaredL12, OmegaTI
-from .loss_slow import SquaredSlow, SquaredHingeSlow, LogisticSlow
 
-from itertools import product
+from sparsepoly import (L1, OmegaTI, SparseAllSubsetsClassifier,
+                        SparseAllSubsetsRegressor,
+                        SparseFactorizationMachineClassifier,
+                        SparseFactorizationMachineRegressor, SquaredL12)
+from sparsepoly.kernels import all_subsets_kernel, anova_kernel, poly_predict
+
+from .loss_slow import LogisticSlow, SquaredHingeSlow, SquaredSlow
+from .regularizer import L1Slow, OmegaTISlow, SquaredL12Slow
 
 n_components = 5
 n_features = 4

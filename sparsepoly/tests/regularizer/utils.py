@@ -1,5 +1,6 @@
-import numpy as np
 from random import randint
+
+import numpy as np
 
 
 def soft_thresholding(x, y):

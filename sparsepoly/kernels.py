@@ -2,11 +2,11 @@
 # Author: Kyohei Atarashi
 # License: MIT
 
-from numba import njit
 import numpy as np
+from numba import njit
+from scipy.sparse import issparse
 from sklearn.metrics.pairwise import polynomial_kernel
 from sklearn.utils.extmath import safe_sparse_dot
-from scipy.sparse import issparse
 
 from .dataset import get_dataset
 

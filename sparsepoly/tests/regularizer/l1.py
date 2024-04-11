@@ -1,5 +1,6 @@
 import numpy as np
-from .utils import soft_thresholding, norm
+
+from .utils import norm, soft_thresholding
 
 
 class L1Slow(object):

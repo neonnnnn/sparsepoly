@@ -1,9 +1,9 @@
 from .l1 import L1
 from .l21 import L21
+from .omegacs import OmegaCS
+from .omegati import OmegaTI
 from .squaredl12 import SquaredL12
 from .squaredl21 import SquaredL21
-from .omegati import OmegaTI
-from .omegacs import OmegaCS
 
 REGULARIZATION = {
     'squaredl12': SquaredL12,

@@ -7,21 +7,23 @@ from abc import ABCMeta, abstractmethod
 
 import numpy as np
 from sklearn.utils import check_random_state
-from sklearn.utils.validation import check_array
 from sklearn.utils.extmath import row_norms
+from sklearn.utils.validation import check_array
+
 try:
     from sklearn.exceptions import NotFittedError
 except ImportError:
     class NotFittedError(ValueError, AttributeError):
         pass
 
-from .base import BaseSparsePoly, SparsePolyClassifierMixin, SparsePolyRegressorMixin
-from .kernels import poly_predict
+from .base import (BaseSparsePoly, SparsePolyClassifierMixin,
+                   SparsePolyRegressorMixin)
 from .dataset import get_dataset
-from .regularizer import L1, L21, OmegaCS, OmegaTI
+from .kernels import poly_predict
 from .loss import CLASSIFICATION_LOSSES, REGRESSION_LOSSES
-from .pcd_all import pcd_epoch
 from .pbcd_all import pbcd_epoch
+from .pcd_all import pcd_epoch
+from .regularizer import L1, L21, OmegaCS, OmegaTI
 
 
 class _BaseSparseAllSubsets(BaseSparsePoly, metaclass=ABCMeta):

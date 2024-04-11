@@ -1,6 +1,8 @@
-import numpy as np
-from numba import njit, jit
 from random import randint
+
+import numpy as np
+from numba import jit, njit
+
 
 @njit
 def soft_thresholding(x, y):

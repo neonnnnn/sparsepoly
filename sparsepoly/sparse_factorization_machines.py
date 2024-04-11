@@ -6,21 +6,21 @@ import warnings
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
+from sklearn.preprocessing import add_dummy_feature
 from sklearn.utils import check_random_state
 from sklearn.utils.extmath import row_norms, safe_sparse_dot
-from sklearn.utils.validation import check_array, NotFittedError
-from sklearn.preprocessing import add_dummy_feature
+from sklearn.utils.validation import NotFittedError, check_array
 
-from .base import BaseSparsePoly, SparsePolyClassifierMixin, SparsePolyRegressorMixin
+from .base import (BaseSparsePoly, SparsePolyClassifierMixin,
+                   SparsePolyRegressorMixin)
+from .cd_linear import _cd_linear_epoch
 from .dataset import get_dataset
 from .kernels import poly_predict
-from .regularizer import SquaredL12, SquaredL21, REGULARIZATION
 from .loss import CLASSIFICATION_LOSSES, REGRESSION_LOSSES
-from .cd_linear import _cd_linear_epoch
-from .psgd import psgd_epoch
-from .pcd import pcd_epoch
 from .pbcd import pbcd_epoch
-
+from .pcd import pcd_epoch
+from .psgd import psgd_epoch
+from .regularizer import REGULARIZATION, SquaredL12, SquaredL21
 
 LEARNING_RATE = {
     "constant": 0,

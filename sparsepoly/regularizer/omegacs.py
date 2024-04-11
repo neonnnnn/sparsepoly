@@ -1,8 +1,10 @@
-import numpy as np
-from numba import float64, boolean
-from numba.experimental import jitclass
-from .utils import norm
 from math import sqrt
+
+import numpy as np
+from numba import boolean, float64
+from numba.experimental import jitclass
+
+from .utils import norm
 
 spec = [
     ("_norms", float64[:]),

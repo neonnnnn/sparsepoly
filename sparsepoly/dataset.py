@@ -2,12 +2,12 @@
 # Author: Kyohei Atarashi
 # License: MIT
 
-import numpy as np
-import scipy.sparse as sp
-from numba import int32, float64
-from numba.experimental import jitclass
 from abc import ABCMeta, abstractmethod
 
+import numpy as np
+import scipy.sparse as sp
+from numba import float64, int32
+from numba.experimental import jitclass
 
 spec_dense = [
     ("n_samples", int32),

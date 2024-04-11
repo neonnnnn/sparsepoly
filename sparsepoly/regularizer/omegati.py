@@ -1,5 +1,5 @@
 import numpy as np
-from numba import float64, boolean
+from numba import boolean, float64
 from numba.experimental import jitclass
 
 spec = [
