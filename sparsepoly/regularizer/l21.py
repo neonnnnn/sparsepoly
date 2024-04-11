@@ -10,6 +10,7 @@ spec = [
     ("transpose", boolean),
 ]
 
+
 @jitclass(spec)
 class L21(object):
     def __init__(self, transpose=False):
@@ -22,7 +23,7 @@ class L21(object):
     def init_cache_pbcd(self, degree, n_features, n_components):
         if self.transpose:
             raise ValueError("self.transpose is True.")
-    
+
     def compute_cache_pbcd(self, P, degree):
         pass
 
@@ -38,7 +39,7 @@ class L21(object):
 
     def init_cache_psgd(self, degree, n_features, n_components):
         pass
-    
+
     def prox(self, P, strength, degree):
         # assume P.shape = (n_features, n_components)
         axis = 0 if self.transpose else 1

@@ -8,8 +8,9 @@ spec = [
     ("transpose", boolean),
     ("_cache", float64[:]),
     ("_abs_p", float64[:]),
-    ("_candidates", int32[:])
+    ("_candidates", int32[:]),
 ]
+
 
 @jitclass(spec)
 class SquaredL12(object):
@@ -53,7 +54,7 @@ class SquaredL12(object):
         dcache = self._cache[i] - self._abs_p[j]
         p_sj /= 1 + 2 * strength
         sign = 1 if p_sj > 0 else -1
-        return sign * max(abs(p_sj) - 2*strength*dcache / (1+2*strength), 0)
+        return sign * max(abs(p_sj) - 2 * strength * dcache / (1 + 2 * strength), 0)
 
     def init_cache_psgd(self, degree, n_features, n_components):
         if self.transpose:

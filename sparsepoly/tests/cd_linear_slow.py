@@ -2,11 +2,11 @@
 # Author: Kyohei Atarashi
 # License: MIT
 
-def _cd_linear_epoch(w, X, y, y_pred, col_norm_sq, alpha, loss,
-                     indices_feature):
+
+def _cd_linear_epoch(w, X, y, y_pred, col_norm_sq, alpha, loss, indices_feature):
     sum_viol = 0
     n_samples = len(y)
-    for j in indices_feature: 
+    for j in indices_feature:
         update = 0
         # compute gradient with respect to w_j
         for i in range(n_samples):

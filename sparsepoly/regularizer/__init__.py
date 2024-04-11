@@ -6,10 +6,10 @@ from .squaredl12 import SquaredL12
 from .squaredl21 import SquaredL21
 
 REGULARIZATION = {
-    'squaredl12': SquaredL12,
-    'squaredl21': SquaredL21,
-    'l1': L1,
-    'l21': L21,
-    'omegati': OmegaTI,
-    'omegacs': OmegaCS
+    "squaredl12": SquaredL12,
+    "squaredl21": SquaredL21,
+    "l1": L1,
+    "l21": L21,
+    "omegati": OmegaTI,
+    "omegacs": OmegaCS,
 }

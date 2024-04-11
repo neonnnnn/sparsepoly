@@ -30,7 +30,7 @@ class LogisticSlow(object):
         z = p * y
         # log(1 + exp(-z))
         result = np.log(1.0 + np.exp(-z))
-        result[z < -18.0] = -z[ z < -18.0]
+        result[z < -18.0] = -z[z < -18.0]
         result[z > 18.0] = np.exp(-z[z > 18.0])
         return result
 
@@ -39,7 +39,7 @@ class LogisticSlow(object):
         # def tau = 1 / (1 + exp(-z))
         # return y * (tau - 1)
         result = -y / (np.exp(z) + 1.0)
-        result[z > 18.0] = - (y * np.exp(-z))[z > 18.0]
+        result[z > 18.0] = -(y * np.exp(-z))[z > 18.0]
         result[z < -18.0] = -y[z < -18.0]
         return result
 

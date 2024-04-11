@@ -72,12 +72,10 @@ class SquaredHinge(object):
         return 0.0
 
 
-REGRESSION_LOSSES = {
-    'squared': Squared()
-}
+REGRESSION_LOSSES = {"squared": Squared()}
 
 CLASSIFICATION_LOSSES = {
-    'squared': Squared(),
-    'squared_hinge': SquaredHinge(),
-    'logistic': Logistic()
+    "squared": Squared(),
+    "squared_hinge": SquaredHinge(),
+    "logistic": Logistic(),
 }

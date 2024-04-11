@@ -1,5 +1,5 @@
 # encoding: utf-8
-# Author: Kyohei Atarashi 
+# Author: Kyohei Atarashi
 # License: MIT
 
 import warnings
@@ -11,8 +11,7 @@ from sklearn.utils import check_random_state
 from sklearn.utils.extmath import row_norms, safe_sparse_dot
 from sklearn.utils.validation import NotFittedError, check_array
 
-from .base import (BaseSparsePoly, SparsePolyClassifierMixin,
-                   SparsePolyRegressorMixin)
+from .base import BaseSparsePoly, SparsePolyClassifierMixin, SparsePolyRegressorMixin
 from .cd_linear import _cd_linear_epoch
 from .dataset import get_dataset
 from .kernels import poly_predict
@@ -22,24 +21,41 @@ from .pcd import pcd_epoch
 from .psgd import psgd_epoch
 from .regularizer import REGULARIZATION, SquaredL12, SquaredL21
 
-LEARNING_RATE = {
-    "constant": 0,
-    "optimal": 1,
-    "pegasos": 2,
-    "invscaling": 3
-    }
+LEARNING_RATE = {"constant": 0, "optimal": 1, "pegasos": 2, "invscaling": 3}
 
 
 class _BaseSparseFactorizationMachine(BaseSparsePoly, metaclass=ABCMeta):
     _REGULARIZERS = REGULARIZATION
+
     @abstractmethod
-    def __init__(self, degree=2, loss='squared', n_components=2, solver='pcd',
-                 regularizer='squaredl12', alpha=1, beta=1, gamma=1, mean=False,
-                 tol=1e-6, fit_lower='explicit', fit_linear=True,
-                 warm_start=False, init_lambdas='ones', max_iter=100,
-                 shuffle=False, batch_size='auto', eta0=1.0,
-                 learning_rate='optimal', power_t=1.0, n_iter_no_change=5,
-                 verbose=False, callback=None, n_calls=10, random_state=None):
+    def __init__(
+        self,
+        degree=2,
+        loss="squared",
+        n_components=2,
+        solver="pcd",
+        regularizer="squaredl12",
+        alpha=1,
+        beta=1,
+        gamma=1,
+        mean=False,
+        tol=1e-6,
+        fit_lower="explicit",
+        fit_linear=True,
+        warm_start=False,
+        init_lambdas="ones",
+        max_iter=100,
+        shuffle=False,
+        batch_size="auto",
+        eta0=1.0,
+        learning_rate="optimal",
+        power_t=1.0,
+        n_iter_no_change=5,
+        verbose=False,
+        callback=None,
+        n_calls=10,
+        random_state=None,
+    ):
         self.degree = degree
         self.loss = loss
         self.n_components = n_components
@@ -68,7 +84,7 @@ class _BaseSparseFactorizationMachine(BaseSparsePoly, metaclass=ABCMeta):
 
     def _augment(self, X):
         # for factorization machines, we add a dummy column for each order.
-        if self.fit_lower == 'augment':
+        if self.fit_lower == "augment":
             k = 2 if self.fit_linear else 1
             for _ in range(self.degree - k):
                 X = add_dummy_feature(X, value=1)
@@ -81,7 +97,7 @@ class _BaseSparseFactorizationMachine(BaseSparsePoly, metaclass=ABCMeta):
         indices_samples = np.arange(n_samples, dtype=np.int32)
         no_improvement_count = 0
         best_loss = np.inf
-        if self.batch_size == 'auto':
+        if self.batch_size == "auto":
             batch_size = int(n_samples * n_features / X.count_nonzero())
         else:
             batch_size = self.batch_size
@@ -93,10 +109,10 @@ class _BaseSparseFactorizationMachine(BaseSparsePoly, metaclass=ABCMeta):
         learning_rate = LEARNING_RATE[self.learning_rate]
 
         # copy for fast training
-        P = np.array(self.P_.swapaxes(1, 2)) # (n_orders, n_features, n_components)
-        
+        P = np.array(self.P_.swapaxes(1, 2))  # (n_orders, n_features, n_components)
+
         # init caches and regularizer
-        A = np.zeros((P.shape[0], self.degree+1, self.n_components))
+        A = np.zeros((P.shape[0], self.degree + 1, self.n_components))
         dA = np.zeros((self.degree, self.n_components))
         grad_P = np.zeros(P.shape)
         grad_w = np.zeros(n_features)
@@ -108,10 +124,29 @@ class _BaseSparseFactorizationMachine(BaseSparsePoly, metaclass=ABCMeta):
                 rng.shuffle(indices_samples)
 
             sum_loss, self.it_ = psgd_epoch(
-                X, y, P, self.w_, self.lams_, self.degree, self.alpha,
-                self.beta, self.gamma, regularizer, loss_obj, A, dA, grad_P, 
-                grad_w, indices_samples, self.fit_linear, self.eta0,
-                learning_rate, self.power_t, batch_size, self.it_)
+                X,
+                y,
+                P,
+                self.w_,
+                self.lams_,
+                self.degree,
+                self.alpha,
+                self.beta,
+                self.gamma,
+                regularizer,
+                loss_obj,
+                A,
+                dA,
+                grad_P,
+                grad_w,
+                indices_samples,
+                self.fit_linear,
+                self.eta0,
+                learning_rate,
+                self.power_t,
+                batch_size,
+                self.it_,
+            )
             # callback
             if (self.callback is not None) and epoch % self.n_calls == 0:
                 if self.callback(self) is not None:
@@ -133,11 +168,10 @@ class _BaseSparseFactorizationMachine(BaseSparsePoly, metaclass=ABCMeta):
                 converged = True
                 break
         # substitute
-        self.P_[:, :, :] = np.array(P.swapaxes(1, 2)) 
+        self.P_[:, :, :] = np.array(P.swapaxes(1, 2))
         return converged, epoch
- 
-    def _fit_pcd(self, X, y, y_pred, col_norm_sq, regularizer,
-                 loss_obj, rng):
+
+    def _fit_pcd(self, X, y, y_pred, col_norm_sq, regularizer, loss_obj, rng):
         n_samples = X.get_n_samples()
         n_features = X.get_n_features()
         indices_feature = np.arange(n_features, dtype=np.int32)
@@ -152,7 +186,7 @@ class _BaseSparseFactorizationMachine(BaseSparsePoly, metaclass=ABCMeta):
             beta = self.beta
             gamma = self.gamma
         # caches
-        A = np.zeros((n_samples, self.degree+1))
+        A = np.zeros((n_samples, self.degree + 1))
         dA = np.zeros(self.degree)
         A[:, 0] = 1.0
         # init regularizer
@@ -165,20 +199,47 @@ class _BaseSparseFactorizationMachine(BaseSparsePoly, metaclass=ABCMeta):
                 rng.shuffle(indices_feature)
 
             if self.fit_linear:
-                viol += _cd_linear_epoch(self.w_, X, y, y_pred, col_norm_sq,
-                                         alpha, loss_obj, indices_feature)
+                viol += _cd_linear_epoch(
+                    self.w_, X, y, y_pred, col_norm_sq, alpha, loss_obj, indices_feature
+                )
 
-            if self.fit_lower == 'explicit':
+            if self.fit_lower == "explicit":
                 for deg in range(2, self.degree):
-                    viol += pcd_epoch(self.P_[self.degree-deg], X, y, y_pred,
-                                       self.lams_, deg, beta, gamma, self.eta0,
-                                       regularizer, loss_obj, A, dA,
-                                       indices_component, indices_feature)
+                    viol += pcd_epoch(
+                        self.P_[self.degree - deg],
+                        X,
+                        y,
+                        y_pred,
+                        self.lams_,
+                        deg,
+                        beta,
+                        gamma,
+                        self.eta0,
+                        regularizer,
+                        loss_obj,
+                        A,
+                        dA,
+                        indices_component,
+                        indices_feature,
+                    )
 
-            viol += pcd_epoch(self.P_[0], X, y, y_pred, self.lams_,
-                               self.degree, beta, gamma, self.eta0,
-                               regularizer, loss_obj, A, dA, 
-                               indices_component, indices_feature)
+            viol += pcd_epoch(
+                self.P_[0],
+                X,
+                y,
+                y_pred,
+                self.lams_,
+                self.degree,
+                beta,
+                gamma,
+                self.eta0,
+                regularizer,
+                loss_obj,
+                A,
+                dA,
+                indices_component,
+                indices_feature,
+            )
 
             if (self.callback is not None) and it % self.n_calls == 0:
                 if self.callback(self) is not None:
@@ -209,7 +270,7 @@ class _BaseSparseFactorizationMachine(BaseSparsePoly, metaclass=ABCMeta):
             beta = self.beta
             gamma = self.gamma
         # caches
-        A = np.zeros((n_samples, self.degree+1, self.n_components))
+        A = np.zeros((n_samples, self.degree + 1, self.n_components))
         dA = np.zeros((n_samples, self.degree, self.n_components))
         grad = np.zeros(self.n_components)
         inv_step_sizes = np.zeros(self.n_components)
@@ -218,31 +279,61 @@ class _BaseSparseFactorizationMachine(BaseSparsePoly, metaclass=ABCMeta):
 
         # init regularizer
         regularizer.init_cache_pbcd(self.degree, n_features, self.n_components)
-        
+
         # transpose for fast training
-        P = np.array(self.P_.swapaxes(1, 2)) # (n_orders, n_features, n_components)
- 
+        P = np.array(self.P_.swapaxes(1, 2))  # (n_orders, n_features, n_components)
+
         for it in range(self.max_iter):
             viol = 0
             if self.shuffle:
                 rng.shuffle(indices_feature)
 
             if self.fit_linear:
-                viol += _cd_linear_epoch(self.w_, X, y, y_pred, col_norm_sq,
-                                         alpha, loss_obj, indices_feature)
+                viol += _cd_linear_epoch(
+                    self.w_, X, y, y_pred, col_norm_sq, alpha, loss_obj, indices_feature
+                )
 
-            if self.fit_lower == 'explicit':
+            if self.fit_lower == "explicit":
                 for deg in range(2, self.degree):
                     viol += pbcd_epoch(
-                        P[self.degree-deg], X, y, y_pred, self.lams_, deg,
-                        beta, gamma, self.eta0, regularizer,
-                        loss_obj, A, dA, grad, inv_step_sizes,
-                        p_j_old, indices_feature)
+                        P[self.degree - deg],
+                        X,
+                        y,
+                        y_pred,
+                        self.lams_,
+                        deg,
+                        beta,
+                        gamma,
+                        self.eta0,
+                        regularizer,
+                        loss_obj,
+                        A,
+                        dA,
+                        grad,
+                        inv_step_sizes,
+                        p_j_old,
+                        indices_feature,
+                    )
 
             viol += pbcd_epoch(
-                P[0], X, y, y_pred, self.lams_, self.degree, beta,
-                gamma, self.eta0, regularizer, loss_obj, A, dA,
-                grad, inv_step_sizes, p_j_old, indices_feature)
+                P[0],
+                X,
+                y,
+                y_pred,
+                self.lams_,
+                self.degree,
+                beta,
+                gamma,
+                self.eta0,
+                regularizer,
+                loss_obj,
+                A,
+                dA,
+                grad,
+                inv_step_sizes,
+                p_j_old,
+                indices_feature,
+            )
 
             if (self.callback is not None) and it % self.n_calls == 0:
                 if self.callback(self) is not None:
@@ -257,7 +348,7 @@ class _BaseSparseFactorizationMachine(BaseSparsePoly, metaclass=ABCMeta):
                 converged = True
                 break
         # substitute
-        self.P_[:, :, :] = np.array(P.swapaxes(1, 2)) 
+        self.P_[:, :, :] = np.array(P.swapaxes(1, 2))
         return converged, it
 
     def fit(self, X, y):
@@ -285,27 +376,28 @@ class _BaseSparseFactorizationMachine(BaseSparsePoly, metaclass=ABCMeta):
         loss_obj = self._get_loss(self.loss)
         regularizer = self._get_regularizer(self.regularizer)
 
-        if not (self.warm_start and hasattr(self, 'w_')):
+        if not (self.warm_start and hasattr(self, "w_")):
             self.w_ = np.zeros(n_features, dtype=np.double)
 
-        if self.fit_lower == 'explicit':
+        if self.fit_lower == "explicit":
             n_orders = self.degree - 1
         else:
             n_orders = 1
 
-        if not (self.warm_start and hasattr(self, 'P_')):
+        if not (self.warm_start and hasattr(self, "P_")):
             self.P_ = 0.01 * rng.randn(n_orders, self.n_components, n_features)
 
-        if not (self.warm_start and hasattr(self, 'lams_')):
-            if self.init_lambdas == 'ones':
+        if not (self.warm_start and hasattr(self, "lams_")):
+            if self.init_lambdas == "ones":
                 self.lams_ = np.ones(self.n_components)
-            elif self.init_lambdas == 'random_signs':
+            elif self.init_lambdas == "random_signs":
                 self.lams_ = np.sign(rng.randn(self.n_components))
             else:
-                raise ValueError("Lambdas must be initialized as ones "
-                                 "(init_lambdas='ones') or as random "
-                                 "+/- 1 (init_lambdas='random_signs').")
-        
+                raise ValueError(
+                    "Lambdas must be initialized as ones "
+                    "(init_lambdas='ones') or as random "
+                    "+/- 1 (init_lambdas='random_signs')."
+                )
 
         if np.unique(np.abs(self.lams_)) != np.array([1.0]):
             raise ValueError("Lambdas must be +1 or -1.")
@@ -319,21 +411,19 @@ class _BaseSparseFactorizationMachine(BaseSparsePoly, metaclass=ABCMeta):
             if not (self.warm_start and hasattr(self, "it_")):
                 self.it_ = 1
 
-        if self.solver == 'pcd':
+        if self.solver == "pcd":
             converged, self.n_iter_ = self._fit_pcd(
-                dataset, y, y_pred, col_norm_sq, regularizer,
-                loss_obj, rng
-                )
-        elif self.solver == 'pbcd':
+                dataset, y, y_pred, col_norm_sq, regularizer, loss_obj, rng
+            )
+        elif self.solver == "pbcd":
             converged, self.n_iter_ = self._fit_pbcd(
-                dataset, y, y_pred, col_norm_sq, regularizer,
-                loss_obj, rng
-                )
-        elif self.solver == 'psgd':
+                dataset, y, y_pred, col_norm_sq, regularizer, loss_obj, rng
+            )
+        elif self.solver == "psgd":
             dataset = get_dataset(X, order="c")
             converged, self.n_iter_ = self._fit_psgd(
                 dataset, y, regularizer, loss_obj, rng
-                )
+            )
         else:
             msg = f"Solver {self.solver} is not supported."
             raise ValueError(msg)
@@ -344,28 +434,32 @@ class _BaseSparseFactorizationMachine(BaseSparsePoly, metaclass=ABCMeta):
         return self
 
     def _get_output(self, X):
-        y_pred = poly_predict(X, self.P_[0, :, :], self.lams_, kernel='anova',
-                              degree=self.degree)
+        y_pred = poly_predict(
+            X, self.P_[0, :, :], self.lams_, kernel="anova", degree=self.degree
+        )
 
         if self.fit_linear:
             y_pred += safe_sparse_dot(X, self.w_)
 
-        if self.fit_lower == 'explicit' and self.degree == 3:
+        if self.fit_lower == "explicit" and self.degree == 3:
             # degree cannot currently be > 3
-            y_pred += poly_predict(X, self.P_[1, :, :], self.lams_,
-                                   kernel='anova', degree=2)
+            y_pred += poly_predict(
+                X, self.P_[1, :, :], self.lams_, kernel="anova", degree=2
+            )
 
         return y_pred
 
     def _predict(self, X):
         if not hasattr(self, "P_"):
             raise NotFittedError("Estimator not fitted.")
-        X = check_array(X, accept_sparse='csc', dtype=np.double)
+        X = check_array(X, accept_sparse="csc", dtype=np.double)
         X = self._augment(X)
         return self._get_output(X)
 
-class SparseFactorizationMachineRegressor(_BaseSparseFactorizationMachine,
-                                          SparsePolyRegressorMixin):
+
+class SparseFactorizationMachineRegressor(
+    _BaseSparseFactorizationMachine, SparsePolyRegressorMixin
+):
     """Sparse factorization machine for regression (with squared loss).
 
     Parameters
@@ -378,7 +472,7 @@ class SparseFactorizationMachineRegressor(_BaseSparseFactorizationMachine,
     n_components : int, default: 2
         Number of basis vectors to learn, a.k.a. the dimension of the
         low-rank parametrization.
-    
+
     solver : str, default: 'pcd'.
         {'pcd'|'pbcd'|'psgd'} is supported.
 
@@ -392,10 +486,10 @@ class SparseFactorizationMachineRegressor(_BaseSparseFactorizationMachine,
 
     beta : float, default: 1
         Regularization amount for higher-order weights.
-    
+
     gamma : float, default: 1
         Sparsity-inducing regularization amount for higher-order weights.
-    
+
     mean : boolean, default: False
         Whether loss is mean or sum.
 
@@ -436,15 +530,15 @@ class SparseFactorizationMachineRegressor(_BaseSparseFactorizationMachine,
 
     max_iter : int, optional, default: 100
         Maximum number of passes over the dataset to perform.
-    
+
     shuffle : boolean, optional, default: True
         Whether cyclic or random order optimization.
-    
+
     batch_size: int or 'auto', optional, default: 'auto'
         Number of instances in one mini-batch.
         If `auto`, (n_samples * n_features) / X.count_nonzero() is used.
         This is valid when solver='psgd'.
-    
+
     eta0 : float, default: 1.0
         Step-size parameter. For 'pcd' and 'pbcd' solver, 0.1 or 1.0 is recommended.
 
@@ -512,7 +606,7 @@ class SparseFactorizationMachineRegressor(_BaseSparseFactorizationMachine,
     Higher-order Factorization Machines.
     Mathieu Blondel, Akinori Fujino, Naonori Ueda, and Masakazu Ishihata.
     In: Proceedings of NeurIPS 2016.
-    
+
     Jianpeng Xu, Kaixiang Lin, Pang-Ning Tan, and Jiayu Zhou.
     Synergies that Matter: Efficient Interaction Selection via Sparse Factorization Machine.
     In: Proceedings of SDM 2016.
@@ -520,7 +614,7 @@ class SparseFactorizationMachineRegressor(_BaseSparseFactorizationMachine,
     Huan Zhao, Quanming Yao, Jianda Li, Yangqiu Song, and Dik Lun Lee.
     Meta-graph based Recommendation Fusion over Heterogeneous Information Networks.
     In: Proceedings of KDD 2017.
-    
+
     Zhen Pan, Enhong Chen, Qi Liu, Tong Xu, Haiping Ma, and Hongjie Lin.
     Sparse Factorization Machines for Click-through Rate Prediction.
     In: Proceedings of ICDM 2016.
@@ -532,23 +626,66 @@ class SparseFactorizationMachineRegressor(_BaseSparseFactorizationMachine,
 
     _LOSSES = REGRESSION_LOSSES
 
-    def __init__(self, degree=2, n_components=2, solver='pcd', 
-                 regularizer='squaredl12', alpha=1, beta=1, gamma=1,
-                 mean=False, tol=1e-6, fit_lower='explicit',
-                 fit_linear=True, warm_start=False, init_lambdas='ones',
-                 max_iter=100, shuffle=False, batch_size='auto', eta0=1.0,
-                 learning_rate='optimal', power_t=1.0, n_iter_no_change=5,
-                 verbose=False, callback=None, n_calls=10, random_state=None):
+    def __init__(
+        self,
+        degree=2,
+        n_components=2,
+        solver="pcd",
+        regularizer="squaredl12",
+        alpha=1,
+        beta=1,
+        gamma=1,
+        mean=False,
+        tol=1e-6,
+        fit_lower="explicit",
+        fit_linear=True,
+        warm_start=False,
+        init_lambdas="ones",
+        max_iter=100,
+        shuffle=False,
+        batch_size="auto",
+        eta0=1.0,
+        learning_rate="optimal",
+        power_t=1.0,
+        n_iter_no_change=5,
+        verbose=False,
+        callback=None,
+        n_calls=10,
+        random_state=None,
+    ):
 
         super(SparseFactorizationMachineRegressor, self).__init__(
-            degree, 'squared', n_components, solver, regularizer, alpha, beta,
-            gamma, mean, tol, fit_lower, fit_linear, warm_start, init_lambdas,
-            max_iter, shuffle, batch_size, eta0, learning_rate, power_t,
-            n_iter_no_change, verbose, callback, n_calls, random_state)
+            degree,
+            "squared",
+            n_components,
+            solver,
+            regularizer,
+            alpha,
+            beta,
+            gamma,
+            mean,
+            tol,
+            fit_lower,
+            fit_linear,
+            warm_start,
+            init_lambdas,
+            max_iter,
+            shuffle,
+            batch_size,
+            eta0,
+            learning_rate,
+            power_t,
+            n_iter_no_change,
+            verbose,
+            callback,
+            n_calls,
+            random_state,
+        )
 
 
-class SparseFactorizationMachineClassifier(_BaseSparseFactorizationMachine,
-                                           SparsePolyClassifierMixin):
+class SparseFactorizationMachineClassifier(
+    _BaseSparseFactorizationMachine, SparsePolyClassifierMixin
+):
     """Sparse factorization machine for classification.
 
     Parameters
@@ -570,7 +707,7 @@ class SparseFactorizationMachineClassifier(_BaseSparseFactorizationMachine,
     n_components : int, default: 2
         Number of basis vectors to learn, a.k.a. the dimension of the
         low-rank parametrization.
-    
+
     solver: str, default: 'pcd'.
         {'pcd'|'pbcd'|'psgd'} is supported.
 
@@ -578,7 +715,7 @@ class SparseFactorizationMachineClassifier(_BaseSparseFactorizationMachine,
         A type of sparsity-inducing regularization for higher-order weights.
         {'squaredl12'|'squaredl21'|'omegati'|omegacs'|'l1'|'l21'} are
         supported.
-    
+
     alpha : float, default: 1
         Regularization amount for linear term (if ``fit_linear=True``).
 
@@ -628,15 +765,15 @@ class SparseFactorizationMachineClassifier(_BaseSparseFactorizationMachine,
 
     max_iter : int, optional, default: 100
         Maximum number of passes over the dataset to perform.
-    
+
     shuffle : bool, optional, default: True
         Whether cyclic or random order optimization.
-    
+
     batch_size: int or 'auto', optional, default: 'auto'
         Number of instances in one mini-batch.
         If `auto`, (n_samples * n_features) / X.count_nonzero() is used.
         This is valid when solver='psgd'.
-    
+
     eta0 : float, default: 1.0
         Step-size parameter. For 'pcd' and 'pbcd' solver, 0.1 or 1.0 is recommended.
 
@@ -712,7 +849,7 @@ class SparseFactorizationMachineClassifier(_BaseSparseFactorizationMachine,
     Huan Zhao, Quanming Yao, Jianda Li, Yangqiu Song, and Dik Lun Lee.
     Meta-graph based Recommendation Fusion over Heterogeneous Information Networks.
     In: Proceedings of KDD 2017.
-    
+
     Zhen Pan, Enhong Chen, Qi Liu, Tong Xu, Haiping Ma, and Hongjie Lin.
     Sparse Factorization Machines for Click-through Rate Prediction.
     In: Proceedings of ICDM 2016.
@@ -724,16 +861,59 @@ class SparseFactorizationMachineClassifier(_BaseSparseFactorizationMachine,
 
     _LOSSES = CLASSIFICATION_LOSSES
 
-    def __init__(self, degree=2, loss='squared_hinge', n_components=2,
-                 solver='pcd', regularizer="squaredl12", alpha=1, beta=1,
-                 gamma=1, mean=False, tol=1e-6, fit_lower='explicit',
-                 fit_linear=True, warm_start=False, init_lambdas='ones',
-                 max_iter=100, shuffle=False, batch_size='auto', eta0=1.0,
-                 learning_rate='optimal', power_t=1.0, n_iter_no_change=5,
-                 verbose=False, callback=None, n_calls=10, random_state=None):
+    def __init__(
+        self,
+        degree=2,
+        loss="squared_hinge",
+        n_components=2,
+        solver="pcd",
+        regularizer="squaredl12",
+        alpha=1,
+        beta=1,
+        gamma=1,
+        mean=False,
+        tol=1e-6,
+        fit_lower="explicit",
+        fit_linear=True,
+        warm_start=False,
+        init_lambdas="ones",
+        max_iter=100,
+        shuffle=False,
+        batch_size="auto",
+        eta0=1.0,
+        learning_rate="optimal",
+        power_t=1.0,
+        n_iter_no_change=5,
+        verbose=False,
+        callback=None,
+        n_calls=10,
+        random_state=None,
+    ):
 
         super(SparseFactorizationMachineClassifier, self).__init__(
-            degree, loss, n_components, solver, regularizer, alpha, beta,
-            gamma, mean, tol, fit_lower, fit_linear, warm_start, init_lambdas, 
-            max_iter, shuffle, batch_size, eta0, learning_rate, power_t,
-            n_iter_no_change, verbose, callback, n_calls, random_state)
+            degree,
+            loss,
+            n_components,
+            solver,
+            regularizer,
+            alpha,
+            beta,
+            gamma,
+            mean,
+            tol,
+            fit_lower,
+            fit_linear,
+            warm_start,
+            init_lambdas,
+            max_iter,
+            shuffle,
+            batch_size,
+            eta0,
+            learning_rate,
+            power_t,
+            n_iter_no_change,
+            verbose,
+            callback,
+            n_calls,
+            random_state,
+        )

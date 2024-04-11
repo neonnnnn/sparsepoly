@@ -1,5 +1,5 @@
 # encoding: utf-8
-# Author: Kyohei Atarashi 
+# Author: Kyohei Atarashi
 # License: MIT
 
 import warnings
@@ -10,10 +10,15 @@ import pytest
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 from sklearn.utils import check_random_state
 
-from sparsepoly import (L1, OmegaTI, SparseAllSubsetsClassifier,
-                        SparseAllSubsetsRegressor,
-                        SparseFactorizationMachineClassifier,
-                        SparseFactorizationMachineRegressor, SquaredL12)
+from sparsepoly import (
+    L1,
+    OmegaTI,
+    SparseAllSubsetsClassifier,
+    SparseAllSubsetsRegressor,
+    SparseFactorizationMachineClassifier,
+    SparseFactorizationMachineRegressor,
+    SquaredL12,
+)
 from sparsepoly.kernels import all_subsets_kernel, anova_kernel, poly_predict
 
 from .loss_slow import LogisticSlow, SquaredHingeSlow, SquaredSlow
@@ -34,8 +39,22 @@ loss_reg = ["squared"]
 loss_clf = ["squared_hinge", "logistic"]
 regularizers = ["l1", "omegati"]
 
-def pcd_epoch_slow(P, X, y, loss, regularizer, lams, degree, beta, gamma,
-                    eta0, indices_component, indices_feature, kernel):
+
+def pcd_epoch_slow(
+    P,
+    X,
+    y,
+    loss,
+    regularizer,
+    lams,
+    degree,
+    beta,
+    gamma,
+    eta0,
+    indices_component,
+    indices_feature,
+    kernel,
+):
     sum_viol = 0
     n_features = X.shape[1]
     for s in indices_component:
@@ -50,7 +69,7 @@ def pcd_epoch_slow(P, X, y, loss, regularizer, lams, degree, beta, gamma,
             X_notj = X[:, notj_mask]
             ps_notj = np.atleast_2d(p_s[notj_mask])
             if kernel == "anova":
-                grad_kernel = anova_kernel(ps_notj, X_notj, degree=degree-1)
+                grad_kernel = anova_kernel(ps_notj, X_notj, degree=degree - 1)
             else:
                 grad_kernel = all_subsets_kernel(ps_notj, X_notj)
             grad_kernel *= x
@@ -63,7 +82,7 @@ def pcd_epoch_slow(P, X, y, loss, regularizer, lams, degree, beta, gamma,
 
             # update
             p_sj_new = regularizer.prox_cd(
-                p_s[j]-eta0*step, p_s, eta0*gamma/inv_step_size, degree, j
+                p_s[j] - eta0 * step, p_s, eta0 * gamma / inv_step_size, degree, j
             )
             sum_viol += np.abs(p_sj_new - P[s, j])
             P[s, j] = p_sj_new
@@ -71,9 +90,24 @@ def pcd_epoch_slow(P, X, y, loss, regularizer, lams, degree, beta, gamma,
     return sum_viol
 
 
-def pcd_slow(X, y, loss, regularizer, lams=None, degree=2, n_components=5,
-             beta=1., gamma=1e-3, max_iter=10, tol=1e-5, eta0=1.0, verbose=False,
-             random_state=None, mean=False, shuffle=False):
+def pcd_slow(
+    X,
+    y,
+    loss,
+    regularizer,
+    lams=None,
+    degree=2,
+    n_components=5,
+    beta=1.0,
+    gamma=1e-3,
+    max_iter=10,
+    tol=1e-5,
+    eta0=1.0,
+    verbose=False,
+    random_state=None,
+    mean=False,
+    shuffle=False,
+):
 
     n_samples, n_features = X.shape
     rng = check_random_state(random_state)
@@ -117,9 +151,21 @@ def pcd_slow(X, y, loss, regularizer, lams=None, degree=2, n_components=5,
             rng.shuffle(indices_component)
             rng.shuffle(indices_feature)
 
-        sum_viol = pcd_epoch_slow(P, X, y, loss, regularizer, lams, degree,
-                                   beta, gamma, eta0, indices_component,
-                                   indices_feature, kernel)
+        sum_viol = pcd_epoch_slow(
+            P,
+            X,
+            y,
+            loss,
+            regularizer,
+            lams,
+            degree,
+            beta,
+            gamma,
+            eta0,
+            indices_component,
+            indices_feature,
+            kernel,
+        )
         if verbose:
             print("Epoch", i, "violations", sum_viol)
         if sum_viol < tol:
@@ -132,126 +178,263 @@ def pcd_slow(X, y, loss, regularizer, lams=None, degree=2, n_components=5,
     return P
 
 
-@pytest.mark.parametrize("degree, mean, loss, regularizer", 
-                         product([2, 3, 4], [True, False], loss_reg, regularizers))
+@pytest.mark.parametrize(
+    "degree, mean, loss, regularizer",
+    product([2, 3, 4], [True, False], loss_reg, regularizers),
+)
 def test_fm_same_as_slow_reg(degree, mean, loss, regularizer):
 
     y = poly_predict(X, P, lams, kernel="anova", degree=degree)
 
     reg = SparseFactorizationMachineRegressor(
-        degree=degree, n_components=n_components, fit_lower=None,
-        fit_linear=False, beta=1, gamma=1e-3, regularizer=regularizer,
-        warm_start=False, tol=1e-3, max_iter=5, random_state=0,
-        mean=mean, shuffle=False) 
+        degree=degree,
+        n_components=n_components,
+        fit_lower=None,
+        fit_linear=False,
+        beta=1,
+        gamma=1e-3,
+        regularizer=regularizer,
+        warm_start=False,
+        tol=1e-3,
+        max_iter=5,
+        random_state=0,
+        mean=mean,
+        shuffle=False,
+    )
     with warnings.catch_warnings():
-        warnings.simplefilter('ignore')
+        warnings.simplefilter("ignore")
         reg.fit(X, y)
         P_fit_slow = pcd_slow(
-            X, y, loss=loss, regularizer=regularizer, lams=reg.lams_, 
-            degree=degree, n_components=n_components, beta=1, gamma=1e-3,
-            max_iter=5, tol=1e-3, random_state=0, mean=mean) 
+            X,
+            y,
+            loss=loss,
+            regularizer=regularizer,
+            lams=reg.lams_,
+            degree=degree,
+            n_components=n_components,
+            beta=1,
+            gamma=1e-3,
+            max_iter=5,
+            tol=1e-3,
+            random_state=0,
+            mean=mean,
+        )
     assert_array_almost_equal(reg.P_[0, :, :], P_fit_slow, decimal=4)
 
 
-@pytest.mark.parametrize("degree, mean, loss, regularizer", 
-                         product([2], [True, False], loss_reg, ["squaredl12"]))
+@pytest.mark.parametrize(
+    "degree, mean, loss, regularizer",
+    product([2], [True, False], loss_reg, ["squaredl12"]),
+)
 def test_fm_squaredl12_same_as_slow_reg(degree, mean, loss, regularizer):
 
     y = poly_predict(X, P, lams, kernel="anova", degree=degree)
 
     reg = SparseFactorizationMachineRegressor(
-        degree=degree, n_components=n_components, fit_lower=None,
-        fit_linear=False, beta=1, gamma=1e-3, regularizer=regularizer,
-        warm_start=False, tol=1e-3, max_iter=1, random_state=0,
-        mean=mean, shuffle=False) 
+        degree=degree,
+        n_components=n_components,
+        fit_lower=None,
+        fit_linear=False,
+        beta=1,
+        gamma=1e-3,
+        regularizer=regularizer,
+        warm_start=False,
+        tol=1e-3,
+        max_iter=1,
+        random_state=0,
+        mean=mean,
+        shuffle=False,
+    )
     with warnings.catch_warnings():
-        warnings.simplefilter('ignore')
+        warnings.simplefilter("ignore")
         reg.fit(X, y)
         print("")
         P_fit_slow = pcd_slow(
-            X, y, loss=loss, regularizer=regularizer, lams=reg.lams_, 
-            degree=degree, n_components=n_components, beta=1, gamma=1e-3,
-            max_iter=1, tol=1e-3, random_state=0, mean=mean) 
+            X,
+            y,
+            loss=loss,
+            regularizer=regularizer,
+            lams=reg.lams_,
+            degree=degree,
+            n_components=n_components,
+            beta=1,
+            gamma=1e-3,
+            max_iter=1,
+            tol=1e-3,
+            random_state=0,
+            mean=mean,
+        )
     assert_array_almost_equal(reg.P_[0, :, :], P_fit_slow, decimal=4)
 
 
-@pytest.mark.parametrize("degree, mean, loss, regularizer", 
-                         product([2, 3, 4], [True, False], loss_clf, regularizers))
+@pytest.mark.parametrize(
+    "degree, mean, loss, regularizer",
+    product([2, 3, 4], [True, False], loss_clf, regularizers),
+)
 def test_fm_same_as_slow_clf(degree, mean, loss, regularizer):
 
     y = poly_predict(X, P, lams, kernel="anova", degree=degree)
     y = np.sign(y)
 
     reg = SparseFactorizationMachineClassifier(
-        degree=degree, n_components=n_components, fit_lower=None,
-        fit_linear=False, beta=1, gamma=1e-3, regularizer=regularizer,
-        warm_start=False, tol=1e-3, max_iter=5, random_state=0,
-        mean=mean, loss=loss, shuffle=False) 
+        degree=degree,
+        n_components=n_components,
+        fit_lower=None,
+        fit_linear=False,
+        beta=1,
+        gamma=1e-3,
+        regularizer=regularizer,
+        warm_start=False,
+        tol=1e-3,
+        max_iter=5,
+        random_state=0,
+        mean=mean,
+        loss=loss,
+        shuffle=False,
+    )
     with warnings.catch_warnings():
-        warnings.simplefilter('ignore')
+        warnings.simplefilter("ignore")
         reg.fit(X, y)
         P_fit_slow = pcd_slow(
-            X, y, loss=loss, regularizer=regularizer, lams=reg.lams_, 
-            degree=degree, n_components=n_components, beta=1, gamma=1e-3,
-            max_iter=5, tol=1e-3, random_state=0, mean=mean) 
+            X,
+            y,
+            loss=loss,
+            regularizer=regularizer,
+            lams=reg.lams_,
+            degree=degree,
+            n_components=n_components,
+            beta=1,
+            gamma=1e-3,
+            max_iter=5,
+            tol=1e-3,
+            random_state=0,
+            mean=mean,
+        )
     assert_array_almost_equal(reg.P_[0, :, :], P_fit_slow, decimal=4)
 
 
-@pytest.mark.parametrize("degree, mean, loss, regularizer", 
-                         product([2], [True, False], loss_clf, ["squaredl12"]))
+@pytest.mark.parametrize(
+    "degree, mean, loss, regularizer",
+    product([2], [True, False], loss_clf, ["squaredl12"]),
+)
 def test_fm_squaredl12_same_as_slow_clf(degree, mean, loss, regularizer):
 
     y = poly_predict(X, P, lams, kernel="anova", degree=degree)
     y = np.sign(y)
 
     reg = SparseFactorizationMachineClassifier(
-        degree=degree, n_components=n_components, fit_lower=None,
-        fit_linear=False, beta=1, gamma=1e-3, regularizer=regularizer,
-        warm_start=False, tol=1e-3, max_iter=5, random_state=0,
-        mean=mean, loss=loss, shuffle=False) 
+        degree=degree,
+        n_components=n_components,
+        fit_lower=None,
+        fit_linear=False,
+        beta=1,
+        gamma=1e-3,
+        regularizer=regularizer,
+        warm_start=False,
+        tol=1e-3,
+        max_iter=5,
+        random_state=0,
+        mean=mean,
+        loss=loss,
+        shuffle=False,
+    )
     with warnings.catch_warnings():
-        warnings.simplefilter('ignore')
+        warnings.simplefilter("ignore")
         reg.fit(X, y)
         P_fit_slow = pcd_slow(
-            X, y, loss=loss, regularizer=regularizer, lams=reg.lams_, 
-            degree=degree, n_components=n_components, beta=1, gamma=1e-3,
-            max_iter=5, tol=1e-3, random_state=0, mean=mean) 
+            X,
+            y,
+            loss=loss,
+            regularizer=regularizer,
+            lams=reg.lams_,
+            degree=degree,
+            n_components=n_components,
+            beta=1,
+            gamma=1e-3,
+            max_iter=5,
+            tol=1e-3,
+            random_state=0,
+            mean=mean,
+        )
     assert_array_almost_equal(reg.P_[0, :, :], P_fit_slow, decimal=4)
 
 
-@pytest.mark.parametrize("mean, loss, regularizer", 
-                         product([True, False], loss_reg, regularizers))
+@pytest.mark.parametrize(
+    "mean, loss, regularizer", product([True, False], loss_reg, regularizers)
+)
 def test_all_subsets_same_as_slow_reg(mean, loss, regularizer):
     y = poly_predict(X, P, lams, kernel="all-subsets")
     reg = SparseAllSubsetsRegressor(
-        n_components=n_components, beta=1, gamma=1e-3, regularizer=regularizer,
-        warm_start=False, tol=1e-3, max_iter=5, random_state=0,
-        mean=mean, shuffle=False) 
+        n_components=n_components,
+        beta=1,
+        gamma=1e-3,
+        regularizer=regularizer,
+        warm_start=False,
+        tol=1e-3,
+        max_iter=5,
+        random_state=0,
+        mean=mean,
+        shuffle=False,
+    )
     with warnings.catch_warnings():
-        warnings.simplefilter('ignore')
+        warnings.simplefilter("ignore")
         reg.fit(X, y)
         P_fit_slow = pcd_slow(
-            X, y, loss=loss, regularizer=regularizer, lams=reg.lams_, 
-            degree=-1, n_components=n_components, beta=1, gamma=1e-3,
-            eta0=0.1, max_iter=5, tol=1e-3, random_state=0, mean=mean) 
+            X,
+            y,
+            loss=loss,
+            regularizer=regularizer,
+            lams=reg.lams_,
+            degree=-1,
+            n_components=n_components,
+            beta=1,
+            gamma=1e-3,
+            eta0=0.1,
+            max_iter=5,
+            tol=1e-3,
+            random_state=0,
+            mean=mean,
+        )
     assert_array_almost_equal(reg.P_, P_fit_slow, decimal=4)
 
 
-@pytest.mark.parametrize("mean, loss, regularizer", 
-                         product([True, False], loss_clf, regularizers))
+@pytest.mark.parametrize(
+    "mean, loss, regularizer", product([True, False], loss_clf, regularizers)
+)
 def test_all_subsets_same_as_slow_clf(mean, loss, regularizer):
     y = poly_predict(X, P, lams, kernel="all-subsets")
     y = np.sign(y)
 
     reg = SparseAllSubsetsClassifier(
-        n_components=n_components, beta=1, gamma=1e-3, regularizer=regularizer,
-        warm_start=False, tol=1e-3, max_iter=5, random_state=0,
-        mean=mean, loss=loss, shuffle=False) 
+        n_components=n_components,
+        beta=1,
+        gamma=1e-3,
+        regularizer=regularizer,
+        warm_start=False,
+        tol=1e-3,
+        max_iter=5,
+        random_state=0,
+        mean=mean,
+        loss=loss,
+        shuffle=False,
+    )
     with warnings.catch_warnings():
-        warnings.simplefilter('ignore')
+        warnings.simplefilter("ignore")
         reg.fit(X, y)
         P_fit_slow = pcd_slow(
-            X, y, loss=loss, regularizer=regularizer, lams=reg.lams_, 
-            degree=-1, n_components=n_components, beta=1, gamma=1e-3,
-            eta0=0.1, max_iter=5, tol=1e-3, random_state=0, mean=mean) 
+            X,
+            y,
+            loss=loss,
+            regularizer=regularizer,
+            lams=reg.lams_,
+            degree=-1,
+            n_components=n_components,
+            beta=1,
+            gamma=1e-3,
+            eta0=0.1,
+            max_iter=5,
+            tol=1e-3,
+            random_state=0,
+            mean=mean,
+        )
     assert_array_almost_equal(reg.P_, P_fit_slow, decimal=4)

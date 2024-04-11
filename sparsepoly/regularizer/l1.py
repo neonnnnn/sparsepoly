@@ -8,6 +8,7 @@ spec = [
     ("transpose", boolean),
 ]
 
+
 @jitclass(spec)
 class L1(object):
     def __init__(self):
@@ -18,7 +19,7 @@ class L1(object):
 
     def init_cache_pcd(self, degree, n_features, n_components):
         pass
-    
+
     def compute_cache_pcd_all(self, P, degree):
         pass
 
@@ -29,11 +30,11 @@ class L1(object):
         pass
 
     def prox_cd(self, p_sj, strength, degree, j):
-        return np.sign(p_sj) * max(abs(p_sj)-strength, 0.0)
+        return np.sign(p_sj) * max(abs(p_sj) - strength, 0.0)
 
     def init_cache_pbcd(self, degree, n_features, n_components):
         pass
-    
+
     def compute_cache_pbcd(self, P, degree):
         pass
 

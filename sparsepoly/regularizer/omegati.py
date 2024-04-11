@@ -7,8 +7,9 @@ spec = [
     ("_cache", float64[:]),
     ("_abs_p", float64[:]),
     ("_dcache", float64[:]),
-    ("_cache_all_subsets", float64)
+    ("_cache_all_subsets", float64),
 ]
+
 
 @jitclass(spec)
 class OmegaTI(object):
@@ -17,20 +18,20 @@ class OmegaTI(object):
 
     def _eval(self, Ps, degree):
         n_features, n_components = Ps[0].shape
-        cache = np.zeros((degree+1, n_components))
+        cache = np.zeros((degree + 1, n_components))
         result = []
         for P in Ps:
             cache[:, :] = 0
             cache[0] = 1.0
             for j in range(n_features):
-                abs_p_j  = abs(P[j])
+                abs_p_j = abs(P[j])
                 for deg in range(degree):
-                    cache[degree-deg] += cache[degree-deg-1] * abs_p_j
+                    cache[degree - deg] += cache[degree - deg - 1] * abs_p_j
             result.append(np.sum(cache[degree]))
         return np.array(result)
-    
+
     def _eval_all(self, Ps):
-        return np.sum(np.sum(np.prod(np.abs(Ps)+1.0, axis=1), 0))
+        return np.sum(np.sum(np.prod(np.abs(Ps) + 1.0, axis=1), 0))
 
     def eval(self, P, degree):
         shape = P.shape[:-2]
@@ -48,8 +49,8 @@ class OmegaTI(object):
     def init_cache_pcd(self, degree, n_features, n_components):
         self._abs_p = np.zeros(n_features)
         if degree > 0:
-            self._cache = np.zeros(degree+1)
-            self._dcache = np.zeros(degree+1)
+            self._cache = np.zeros(degree + 1)
+            self._dcache = np.zeros(degree + 1)
         elif degree == -1:
             self._cache_all_subsets = 1.0
         else:
@@ -68,8 +69,10 @@ class OmegaTI(object):
                 abs_p_sj = abs(p_sj)
                 self._abs_p[s] = abs_p_sj
                 for deg in range(degree):
-                    self._cache[degree-deg] += self._cache[degree-deg-1] * abs_p_sj
-        else: # factorization machine
+                    self._cache[degree - deg] += (
+                        self._cache[degree - deg - 1] * abs_p_sj
+                    )
+        else:  # factorization machine
             self._cache_all_subsets = 1.0
             for j, p_sj in enumerate(P[s]):
                 abs_p_sj = abs(p_sj)
@@ -78,23 +81,23 @@ class OmegaTI(object):
 
     def update_cache_pcd(self, P, degree, s, j):
         abs_p_sj = abs(P[s, j])
-        if degree > 0: # factorization machine
+        if degree > 0:  # factorization machine
             for deg in range(1, degree):
-                self._cache[deg] = self._dcache[deg+1] + self._dcache[deg]*abs_p_sj
-        else: # all-subsets
+                self._cache[deg] = self._dcache[deg + 1] + self._dcache[deg] * abs_p_sj
+        else:  # all-subsets
             self._cache_all_subsets *= 1.0 + abs_p_sj
         self._abs_p[j] = abs_p_sj
 
     def prox_cd(self, p_sj, strength, degree, j):
         sign = 1 if p_sj > 0 else -1
-        if degree > 0: # factorization machine
-            for deg in range(2, degree+1):
-                self._dcache[deg] = self._cache[deg-1] 
-                self._dcache[deg] -= self._dcache[deg-1] * self._abs_p[j]
+        if degree > 0:  # factorization machine
+            for deg in range(2, degree + 1):
+                self._dcache[deg] = self._cache[deg - 1]
+                self._dcache[deg] -= self._dcache[deg - 1] * self._abs_p[j]
                 if self._dcache[deg] < 0:
                     self._dcache[deg] = 0.0
             strength *= self._dcache[degree]
-        else: # all-subsets
+        else:  # all-subsets
             self._cache_all_subsets /= 1.0 + self._abs_p[j]
             strength *= self._cache_all_subsets
 
