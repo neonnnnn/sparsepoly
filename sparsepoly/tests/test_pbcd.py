@@ -6,8 +6,8 @@ import numpy as np
 import pytest
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
-from sparsepoly.kernels import _poly_predict, all_subsets_kernel
-from polylearn.kernels import anova_kernel
+from sparsepoly.kernels import poly_predict, all_subsets_kernel
+from sparsepoly.kernels import anova_kernel
 from sklearn.utils import check_random_state
 import warnings
 from sparsepoly import SparseAllSubsetsClassifier
@@ -35,13 +35,13 @@ loss_clf = ["squared_hinge", "logistic"]
 regularizers = ["l1", "l21", "omegacs"]
 
 
-def _pbcd_epoch_slow(P, X, y, loss, regularizer, lams, degree, beta, gamma,
+def pbcd_epoch_slow(P, X, y, loss, regularizer, lams, degree, beta, gamma,
                      eta0, indices_feature, kernel):
     sum_viol = 0
     n_features = X.shape[1]
     for j in indices_feature:
         # compute prediction
-        y_pred = _poly_predict(X, P.T, lams, kernel, degree=degree)
+        y_pred = poly_predict(X, P.T, lams, kernel, degree=degree)
 
         # compute grad and inv_step_size
         x = X[:, j]
@@ -119,7 +119,7 @@ def pbcd_slow(X, y, loss, regularizer, lams=None, degree=2, n_components=5,
         if shuffle:
             rng.shuffle(indices_feature)
 
-        sum_viol = _pbcd_epoch_slow(P, X, y, loss, regularizer, lams, degree,
+        sum_viol = pbcd_epoch_slow(P, X, y, loss, regularizer, lams, degree,
                                     beta, gamma, eta0, indices_feature, kernel)
         if verbose:
             print("Epoch", i, "violations", sum_viol)
@@ -137,7 +137,7 @@ def pbcd_slow(X, y, loss, regularizer, lams=None, degree=2, n_components=5,
                          product([2, 3, 4], [True, False], loss_reg, regularizers))
 def test_fm_same_as_slow_reg(degree, mean, loss, regularizer):
 
-    y = _poly_predict(X, P, lams, kernel="anova", degree=degree)
+    y = poly_predict(X, P, lams, kernel="anova", degree=degree)
 
     reg = SparseFactorizationMachineRegressor(
         degree=degree, n_components=n_components, fit_lower=None,
@@ -159,7 +159,7 @@ def test_fm_same_as_slow_reg(degree, mean, loss, regularizer):
                          product([2], [True, False], loss_reg, ["squaredl21"]))
 def test_fm_squaredl21_same_as_slow_reg(degree, mean, loss, regularizer):
 
-    y = _poly_predict(X, P, lams, kernel="anova", degree=degree)
+    y = poly_predict(X, P, lams, kernel="anova", degree=degree)
 
     reg = SparseFactorizationMachineRegressor(
         degree=degree, n_components=n_components, fit_lower=None,
@@ -181,7 +181,7 @@ def test_fm_squaredl21_same_as_slow_reg(degree, mean, loss, regularizer):
                          product([2, 3, 4], [True, False], loss_clf, regularizers))
 def test_fm_same_as_slow_clf(degree, mean, loss, regularizer):
 
-    y = _poly_predict(X, P, lams, kernel="anova", degree=degree)
+    y = poly_predict(X, P, lams, kernel="anova", degree=degree)
     y = np.sign(y)
 
     reg = SparseFactorizationMachineClassifier(
@@ -203,7 +203,7 @@ def test_fm_same_as_slow_clf(degree, mean, loss, regularizer):
                          product([2], [True, False], loss_clf, ["squaredl21"]))
 def test_fm_squaredl21_same_as_slow_clf(degree, mean, loss, regularizer):
 
-    y = _poly_predict(X, P, lams, kernel="anova", degree=degree)
+    y = poly_predict(X, P, lams, kernel="anova", degree=degree)
     y = np.sign(y)
 
     reg = SparseFactorizationMachineClassifier(
@@ -224,7 +224,7 @@ def test_fm_squaredl21_same_as_slow_clf(degree, mean, loss, regularizer):
 @pytest.mark.parametrize("mean, loss, regularizer", 
                          product([True, False], loss_reg, regularizers))
 def test_all_subsets_same_as_slow_reg(mean, loss, regularizer):
-    y = _poly_predict(X, P, lams, kernel="all-subsets")
+    y = poly_predict(X, P, lams, kernel="all-subsets")
     reg = SparseAllSubsetsRegressor(
         n_components=n_components, beta=1, gamma=1e-3, regularizer=regularizer,
         warm_start=False, tol=1e-3, max_iter=5, random_state=0,
@@ -242,7 +242,7 @@ def test_all_subsets_same_as_slow_reg(mean, loss, regularizer):
 @pytest.mark.parametrize("mean, loss, regularizer", 
                          product([True, False], loss_clf, regularizers))
 def test_all_subsets_same_as_slow_clf(mean, loss, regularizer):
-    y = _poly_predict(X, P, lams, kernel="all-subsets")
+    y = poly_predict(X, P, lams, kernel="all-subsets")
     y = np.sign(y)
 
     reg = SparseAllSubsetsClassifier(

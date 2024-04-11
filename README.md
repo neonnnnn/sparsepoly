@@ -1,28 +1,27 @@
 # sparsepoly
 
-A polylearn-like library for **sparse factorization machines** and thier variants
+A sklearn-like library for **sparse factorization machines** and thier variants
 for classification and regression in Python.
 
-Factorization machines (FM) are machine learning models based on
+Factorization machines (FMs) are machine learning models based on
 **feature interaction** (co-occurrence) through polynomial terms.
-**Sparse** factorization machines use not all feature interactions but
-partial of them by using sparsity-inducing regularization, namely, sparse 
-factorization machines are factorization machines with **feature interaction
-selection**.
+**Sparse** FMs use not all feature interactions but
+partial of them by using sparsity-inducing regularization, namely, sparse FMs
+are FMs with **feature interaction selection**.
 
 This package provides some solvers for optimizing FM-like models with some regularizations:
 
-- proximal coordinate descent (PCD) algorithm for fitting higher-order factorization machines with
+- proximal coordinate descent (PCD) algorithm for fitting higher-order FMs with
     - L1, SquaredL12, and OmegaTI regularization,
-- proximal block coordinate descent (PBCD) algorithm for fitting higher-order factorization machines with
+- proximal block coordinate descent (PBCD) algorithm for fitting higher-order FMs with
     - L1, L21, SquaredL21, and OmegaCS regularization,
-- mini-batch proximal stochastic gradient descent (PSGD) algorithm for fitting factorization machines with
+- mini-batch proximal stochastic gradient descent (PSGD) algorithm for fitting FMs with
     - L1, L21, SquaredL12, and SquaredL21 regularization,
 - PCD algorithm for fitting all-subsets models with
     - L1 and OmegaTI regularization,
 - PBCD algorithm for fitting all-subsets model with
     - L21 and OmegaCS regularization,
-- and [polylearn](https://github.com/scikit-learn-contrib/polylearn)-compatible API.
+- and sklearn compatible API.
 
 ## Installation
 
@@ -36,10 +35,7 @@ This package provides some solvers for optimizing FM-like models with some regul
     pip install -r requirements.txt
 ```
 
-3. Install the polylearn, please see [polylearn](https://github.com/scikit-learn-contrib/polylearn) installation.
-
-
-4. Build and install sparsepoly:
+3. Build and install sparsepoly:
 ```bash
     cd sparsepoly
     python setup.py build

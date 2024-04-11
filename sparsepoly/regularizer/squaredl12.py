@@ -16,7 +16,7 @@ class SquaredL12(object):
     def __init__(self, transpose=True):
         self.transpose = transpose
 
-    def __call__(self, P):
+    def eval(self, P):
         axis = -2 if self.transpose else -1
         return norm(norm(P, ord=1, axis=axis), axis=-1) ** 2
 

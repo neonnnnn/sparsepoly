@@ -42,8 +42,8 @@ def _update(p_sj, j, indices, data, n_nz, y, y_pred, loss, lam,
 
 
 @njit
-def _pcd_epoch(P, X, y, y_pred, lams, beta, gamma, eta, regularizer,
-               loss, A, indices_component, indices_feature):
+def pcd_epoch(P, X, y, y_pred, lams, beta, gamma, eta, regularizer,
+              loss, A, indices_component, indices_feature):
     sum_viol = 0
     regularizer.compute_cache_pcd_all(P, -1)
     for s in indices_component:

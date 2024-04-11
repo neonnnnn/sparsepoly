@@ -96,9 +96,9 @@ def _update_params(P, w, grad_P, grad_w, alpha, beta, gamma, eta_P, eta_w,
     
 
 @njit
-def _psgd_epoch(X, y, P, w, lams, degree, alpha, beta, gamma, regularizer, loss, A,
-                dA, grad_P, grad_w, indices_samples, fit_linear,
-                eta0, learning_rate, power_t, batch_size, it):
+def psgd_epoch(X, y, P, w, lams, degree, alpha, beta, gamma, regularizer, loss, A,
+               dA, grad_P, grad_w, indices_samples, fit_linear,
+               eta0, learning_rate, power_t, batch_size, it):
     n_samples = X.get_n_samples()
     b = 0
     sum_loss = 0.0

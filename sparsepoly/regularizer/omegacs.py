@@ -28,7 +28,7 @@ class OmegaCS(object):
                 cache[degree-deg] += cache[degree-deg-1] * norms[:, j]
         return cache[-1]
 
-    def __call__(self, P, degree):
+    def eval(self, P, degree):
         shape = P.shape[:-2]
         result = self._eval(P.reshape(-1, P.shape[-1], P.shape[-2]), degree)
         if P.ndim == 2:

@@ -62,9 +62,9 @@ def _update(p_j, j, indices, data, n_nz, y, y_pred, loss, lams, degree,
 
 
 @njit
-def _pbcd_epoch(P, X, y, y_pred, lams, degree, beta, gamma, eta,
-                regularizer, loss, A, dA, grad, inv_step_sizes,
-                p_j_old, indices_feature):
+def pbcd_epoch(P, X, y, y_pred, lams, degree, beta, gamma, eta,
+               regularizer, loss, A, dA, grad, inv_step_sizes,
+               p_j_old, indices_feature):
     sum_viol = 0
     n_components = P.shape[1]
     # Update P_{s} \forall s \in [n_components] for A^{degree}

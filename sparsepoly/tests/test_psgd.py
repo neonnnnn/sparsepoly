@@ -6,8 +6,8 @@ import numpy as np
 import pytest
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
-from sparsepoly.kernels import _poly_predict, all_subsets_kernel
-from polylearn.kernels import anova_kernel
+from sparsepoly.kernels import poly_predict, all_subsets_kernel
+from sparsepoly.kernels import anova_kernel
 from sklearn.utils import check_random_state
 import warnings, math
 from sparsepoly import SparseAllSubsetsClassifier
@@ -58,7 +58,7 @@ def _get_eta(learning_rate, eta0, alpha, beta, power_t, it):
         return eta, eta
 
 
-def _psgd_epoch_slow(P, w, X, y, loss, regularizer, lams, degree, alpha, beta, gamma,
+def psgd_epoch_slow(P, w, X, y, loss, regularizer, lams, degree, alpha, beta, gamma,
                      indices_samples, fit_linear, eta0, learning_rate,
                      power_t, batch_size, it, kernel):
     n_samples = X.shape[0]
@@ -71,7 +71,7 @@ def _psgd_epoch_slow(P, w, X, y, loss, regularizer, lams, degree, alpha, beta, g
         X_batch = X[minibatch_indices]
         y_batch = y[minibatch_indices]
         # compute prediction and loss
-        y_pred_batch = _poly_predict(X_batch, P.T, lams, kernel, degree=degree)
+        y_pred_batch = poly_predict(X_batch, P.T, lams, kernel, degree=degree)
         y_pred_batch += np.dot(X_batch, w)
         sum_loss += np.sum(loss.loss(np.atleast_1d(y_pred_batch), np.atleast_1d(y_batch)))
         
@@ -157,7 +157,7 @@ def psgd_slow(X, y, loss, regularizer, lams=None, degree=2, n_components=5,
         if shuffle:
             rng.shuffle(indices_samples)
 
-        sum_loss, it  = _psgd_epoch_slow(
+        sum_loss, it  = psgd_epoch_slow(
             P, w, X, y, loss, regularizer, lams, degree, alpha, beta, gamma,
             indices_samples, fit_linear, eta0, LEARNING_RATE[learning_rate],
             power_t, batch_size, it, kernel)
@@ -188,7 +188,7 @@ def psgd_slow(X, y, loss, regularizer, lams=None, degree=2, n_components=5,
 def test_fm_same_as_slow_reg(degree, batch_size, learning_rate, fit_linear,
                              loss, regularizer):
 
-    y = _poly_predict(X, P, lams, kernel="anova", degree=degree)
+    y = poly_predict(X, P, lams, kernel="anova", degree=degree)
 
     reg = SparseFactorizationMachineRegressor(
         degree=degree, n_components=n_components, fit_lower=None,
@@ -216,7 +216,7 @@ def test_fm_same_as_slow_reg(degree, batch_size, learning_rate, fit_linear,
 def test_fm_same_as_slow_clf(degree, batch_size, learning_rate, fit_linear,
                              loss, regularizer):
 
-    y = _poly_predict(X, P, lams, kernel="anova", degree=degree)
+    y = poly_predict(X, P, lams, kernel="anova", degree=degree)
     y = np.sign(y)
 
     reg = SparseFactorizationMachineClassifier(
