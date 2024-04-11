@@ -12,7 +12,7 @@ class L1(object):
     def __init__(self):
         pass
 
-    def __call__(self, P):
+    def eval(self, P, degree):
         return norm(P, ord=1, axis=(-2, -1))
 
     def init_cache_pcd(self, degree, n_features, n_components):

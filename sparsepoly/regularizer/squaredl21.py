@@ -17,7 +17,7 @@ class SquaredL21(object):
     def __init__(self, transpose=False):
         self.transpose = transpose
 
-    def __call__(self, P):
+    def eval(self, P):
         axis = -2 if self.transpose else -1
         return norm(norm(P, ord=2, axis=axis), ord=1, axis=-1) ** 2
     
