@@ -6,7 +6,7 @@ class L1Slow(object):
     def __init__(self):
         pass
 
-    def __call__(self, P):
+    def eval(self, P):
         return norm(P, ord=1, axis=(-2, -1))
 
     def prox_cd(self, p_sj, ps, strength, degree, j):

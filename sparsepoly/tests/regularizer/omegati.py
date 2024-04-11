@@ -21,7 +21,7 @@ class OmegaTISlow(object):
     def _eval_all(self, Ps):
         return np.sum(np.sum(np.prod(np.abs(Ps)+1.0, axis=1), 0))
 
-    def __call__(self, P, degree):
+    def eval(self, P, degree):
         shape = P.shape[:-2]
         if degree > 0:
             result = self._eval(P.reshape(-1, P.shape[-2], P.shape[-1]), degree)
