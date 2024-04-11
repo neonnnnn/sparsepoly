@@ -15,7 +15,7 @@ except ImportError:
 DISTNAME = 'sparsepoly'
 DESCRIPTION = ("Sparse factorization machines and their variants"
                "for classification and regression in Python.")
-LONG_DESCRIPTION = open('README.rst').read()
+LONG_DESCRIPTION = open('README.md').read()
 MAINTAINER = 'Kyohei Atarashi'
 MAINTAINER_EMAIL = 'katrashi@ist.hokudai.ac.jp'
 LICENSE = 'Simplified BSD'
