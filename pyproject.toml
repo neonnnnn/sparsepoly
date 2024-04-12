@@ -1,0 +1,44 @@
+[project]
+name = "sparsepoly"
+version = "0.4.dev0"
+description = "Sparse factorization machines and their variants for classification and regression in Python."
+readme = "README.md"
+maintainers = [
+    {name = "Kyohei Atarashi", email="atarashi@i.kyoto-u.ac.jp"},
+]
+dependencies = [
+  "numpy>=1.26.4",
+  "scipy>=1.13.0",
+  "scikit-learn>=1.4.2",
+  "numba>=0.59.1",
+]
+requires-python = ">=3.9"
+license = {text = "MIT License"}
+classifiers=[
+    'Intended Audience :: Science/Research',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: MIT License',
+    'Topic :: Software Development',
+    'Topic :: Scientific/Engineering',
+    'Operating System :: POSIX',
+    'Operating System :: Unix',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+]
+
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+exclude = ["build", "tests"]
+
+[tool.black]
+line-length = 88
+target_version = ['py39', 'py310', 'py311']
+preview = true
+
+[tool.isort]
+profile = "black"
