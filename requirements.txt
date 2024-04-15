@@ -1,5 +1,5 @@
 numpy
 scipy
 numba
-sklearn
+scikit-learn
 pytest
