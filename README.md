@@ -23,24 +23,34 @@ This package provides some solvers for optimizing FM-like models with some regul
     - L21 and OmegaCS regularization,
 - and sklearn compatible API.
 
+## Summary of Supported Regularizers and Solvers
+### Which Regularizer Should You Use?
+| Regularizer \ Purpose | Feature Interaction Selection | Feature Selection |
+| ---- | ---- | ---- |
+| ```l1```| No | Yes |
+| ```l21``` | No | Yes|
+| ```squaredl12``` (```omegati```) | **Yes** | Yes |
+| ```squaredl21``` (```omegacs```) | No | **Yes** |
+
+For more detail, please see our paper.
+
+### Which Solver Can You Use?
+| | Sparse FMs | Sparse Higher-order FMs | Sparse All-subsets Model |
+| ---- | ---- | ---- | ---- |
+| ```pcd``` | ```l1```, ```squaredl12```, ```omegati``` | ```l1```, ```omegati```  | ```l1```, ```omegati```|
+| ```pbcd``` | ```l1```, ```l21```, ```squaredl21```, ```omegacs``` | ```l1```, ```l21```, ```omegacs```  | ```l21```, ```omegacs``` |
+| ```psgd``` | ```l1```, ```l2```, ```squaredl12```, ```squaredl21``` | None | None |
+
+The ```pcd``` and ```pbcd``` algorithms are easy to use and produce a sparse solution, so basiccaly you should use ```pcd``` for feature interaction selection and ```pbcd``` for feature selection.
+
+However, for large-scale datasets, the use of the ```psgd``` is recommended because of its scalability.
+
 ## Installation
-
-1. Download the sources by:
+### pip
 ```bash
-    git clone https://github.com/neonnnnn/sparsepoly.git
-```
- 
-2. Install the dependencies::
-```bash
-    pip install -r requirements.txt
+    pip install git+https://github.com/neonnnnn/sparsepoly
 ```
 
-3. Build and install sparsepoly:
-```bash
-    cd sparsepoly
-    python setup.py build
-    python setup.py install
-```
 ## References
 
 - Kyohei Atarashi, Satoshi Oyama, and Masahito Kurihara. Factorization Machines with Regularization for Sparse Feature Interactions. Journal of Machine Learning Research, 22(153), pp. 1--50, 2021.
