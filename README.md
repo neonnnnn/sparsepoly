@@ -1,3 +1,4 @@
+![black/isort/pytest](https://github.com/neonnnnn/sparsepoly/actions/workflows/python-package.yml/badge.svg)
 # sparsepoly
 
 A sklearn-like library for **sparse factorization machines** and thier variants
