@@ -7,7 +7,7 @@ from itertools import product
 
 import numpy as np
 import pytest
-from numpy.testing import assert_array_almost_equal, assert_array_equal
+from numpy.testing import assert_array_almost_equal
 from sklearn.utils import check_random_state
 
 from sparsepoly import (
@@ -91,7 +91,6 @@ def pbcd_slow(
     mean=False,
     shuffle=False,
 ):
-
     n_samples, n_features = X.shape
     rng = check_random_state(random_state)
     P = 0.01 * rng.randn(n_components, n_features)
@@ -166,7 +165,6 @@ def pbcd_slow(
     product([2, 3, 4], [True, False], loss_reg, regularizers),
 )
 def test_fm_same_as_slow_reg(degree, mean, loss, regularizer):
-
     y = poly_predict(X, P, lams, kernel="anova", degree=degree)
 
     reg = SparseFactorizationMachineRegressor(
@@ -212,7 +210,6 @@ def test_fm_same_as_slow_reg(degree, mean, loss, regularizer):
     product([2], [True, False], loss_reg, ["squaredl21"]),
 )
 def test_fm_squaredl21_same_as_slow_reg(degree, mean, loss, regularizer):
-
     y = poly_predict(X, P, lams, kernel="anova", degree=degree)
 
     reg = SparseFactorizationMachineRegressor(
@@ -258,7 +255,6 @@ def test_fm_squaredl21_same_as_slow_reg(degree, mean, loss, regularizer):
     product([2, 3, 4], [True, False], loss_clf, regularizers),
 )
 def test_fm_same_as_slow_clf(degree, mean, loss, regularizer):
-
     y = poly_predict(X, P, lams, kernel="anova", degree=degree)
     y = np.sign(y)
 
@@ -305,7 +301,6 @@ def test_fm_same_as_slow_clf(degree, mean, loss, regularizer):
     product([2], [True, False], loss_clf, ["squaredl21"]),
 )
 def test_fm_squaredl21_same_as_slow_clf(degree, mean, loss, regularizer):
-
     y = poly_predict(X, P, lams, kernel="anova", degree=degree)
     y = np.sign(y)
 

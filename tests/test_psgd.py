@@ -8,12 +8,10 @@ from itertools import product
 
 import numpy as np
 import pytest
-from numpy.testing import assert_array_almost_equal, assert_array_equal
+from numpy.testing import assert_array_almost_equal
 from sklearn.utils import check_random_state
 
 from sparsepoly import (
-    SparseAllSubsetsClassifier,
-    SparseAllSubsetsRegressor,
     SparseFactorizationMachineClassifier,
     SparseFactorizationMachineRegressor,
 )
@@ -155,7 +153,6 @@ def psgd_slow(
     power_t=1.0,
     n_iter_no_change=5,
 ):
-
     n_samples, n_features = X.shape
     rng = check_random_state(random_state)
     P = 0.01 * rng.randn(n_components, n_features)
@@ -255,7 +252,6 @@ def psgd_slow(
 def test_fm_same_as_slow_reg(
     degree, batch_size, learning_rate, fit_linear, loss, regularizer
 ):
-
     y = poly_predict(X, P, lams, kernel="anova", degree=degree)
 
     reg = SparseFactorizationMachineRegressor(
@@ -318,7 +314,6 @@ def test_fm_same_as_slow_reg(
 def test_fm_same_as_slow_clf(
     degree, batch_size, learning_rate, fit_linear, loss, regularizer
 ):
-
     y = poly_predict(X, P, lams, kernel="anova", degree=degree)
     y = np.sign(y)
 

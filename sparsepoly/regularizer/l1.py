@@ -1,5 +1,5 @@
 import numpy as np
-from numba import boolean, float64
+from numba import boolean
 from numba.experimental import jitclass
 
 from .utils import norm, soft_thresholding

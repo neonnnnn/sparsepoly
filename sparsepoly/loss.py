@@ -2,7 +2,6 @@
 # Author: Kyohei Atarashi
 # License: MIT
 
-from abc import ABCMeta, abstractmethod
 from math import exp, log
 
 from numba import float64

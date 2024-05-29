@@ -365,7 +365,6 @@ class SparseAllSubsetsRegressor(_BaseSparseAllSubsets, SparsePolyRegressorMixin)
         n_calls=10,
         random_state=None,
     ):
-
         super(SparseAllSubsetsRegressor, self).__init__(
             "squared",
             n_components,

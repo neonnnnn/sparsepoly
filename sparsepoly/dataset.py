@@ -2,8 +2,6 @@
 # Author: Kyohei Atarashi
 # License: MIT
 
-from abc import ABCMeta, abstractmethod
-
 import numpy as np
 import scipy.sparse as sp
 from numba import float64, int32

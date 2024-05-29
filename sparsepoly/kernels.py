@@ -147,8 +147,7 @@ def poly_predict(X, P, lams, kernel, degree=2):
     else:
         raise ValueError(
             (
-                "Unsuppported kernel: {}. Use one "
-                "of {{'anova'|'poly'|'all-subsets'}}"
+                "Unsuppported kernel: {}. Use one of {{'anova'|'poly'|'all-subsets'}}"
             ).format(kernel)
         )
     return np.dot(K, lams)

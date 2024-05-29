@@ -50,7 +50,6 @@ def prox_squaredl21_numpy(P, strength):
 
 @pytest.mark.parametrize("strength", [0.0001, 0.001, 0.01, 0.1, 1, 10])
 def test_prox_squaredl12_numba(strength):
-
     arr_prox_slow = prox_squaredl12_numpy(np.array(arr), strength)
     arr_prox = np.array(arr.T)
     regularizer = SquaredL12(transpose=True)
@@ -65,7 +64,6 @@ def test_prox_squaredl12_numba(strength):
 
 @pytest.mark.parametrize("strength", [0.0001, 0.001, 0.01, 0.1, 1, 10])
 def test_prox_squaredl21_numba(strength):
-
     arr_prox_slow = prox_squaredl21_numpy(np.array(arr), strength)
     arr_prox = np.array(arr.T)
     regularizer = SquaredL21()
