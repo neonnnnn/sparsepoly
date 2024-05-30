@@ -30,8 +30,7 @@ jobs:
         python -m pip install pytest black isort flake8 pyproject-flake8
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Check flake8
-      run: check-flake8
-        pflake8 .
+      run: pflake8 .
     - name: Check black and isort
       run: |
         black --check --diff .
