@@ -19,7 +19,7 @@ from .loss import CLASSIFICATION_LOSSES, REGRESSION_LOSSES
 from .pbcd import pbcd_epoch
 from .pcd import pcd_epoch
 from .psgd import psgd_epoch
-from .regularizer import REGULARIZATION, SquaredL12, SquaredL21
+from .regularizer import REGULARIZATION
 
 LEARNING_RATE = {"constant": 0, "optimal": 1, "pegasos": 2, "invscaling": 3}
 
@@ -608,7 +608,8 @@ class SparseFactorizationMachineRegressor(
     In: Proceedings of NeurIPS 2016.
 
     Jianpeng Xu, Kaixiang Lin, Pang-Ning Tan, and Jiayu Zhou.
-    Synergies that Matter: Efficient Interaction Selection via Sparse Factorization Machine.
+    Synergies that Matter: Efficient Interaction Selection via
+    Sparse Factorization Machine.
     In: Proceedings of SDM 2016.
 
     Huan Zhao, Quanming Yao, Jianda Li, Yangqiu Song, and Dik Lun Lee.
@@ -653,7 +654,6 @@ class SparseFactorizationMachineRegressor(
         n_calls=10,
         random_state=None,
     ):
-
         super(SparseFactorizationMachineRegressor, self).__init__(
             degree,
             "squared",
@@ -843,7 +843,8 @@ class SparseFactorizationMachineClassifier(
     In: Proceedings of NeurIPS 2016.
 
     Jianpeng Xu, Kaixiang Lin, Pang-Ning Tan, and Jiayu Zhou.
-    Synergies that Matter: Efficient Interaction Selection via Sparse Factorization Machine.
+    Synergies that Matter: Efficient Interaction Selection via
+    Sparse Factorization Machine.
     In: Proceedings of SDM 2016.
 
     Huan Zhao, Quanming Yao, Jianda Li, Yangqiu Song, and Dik Lun Lee.
@@ -889,7 +890,6 @@ class SparseFactorizationMachineClassifier(
         n_calls=10,
         random_state=None,
     ):
-
         super(SparseFactorizationMachineClassifier, self).__init__(
             degree,
             loss,

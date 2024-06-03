@@ -19,7 +19,8 @@ class BaseSparsePoly(BaseEstimator, metaclass=ABCMeta):
         if loss not in self._LOSSES:
             losses_str = '", "'.join(self._LOSSES)
             raise ValueError(
-                f'Loss function {loss} not supported. The available options are: "{losses_str}".'
+                f"Loss function {loss} not supported. The available options are:"
+                f' "{losses_str}".'
             )
         return self._LOSSES[loss]
 
@@ -27,13 +28,13 @@ class BaseSparsePoly(BaseEstimator, metaclass=ABCMeta):
         if regularizer not in self._REGULARIZERS:
             regularizers_str = '", "'.join(self._REGULARIZERS)
             raise ValueError(
-                f'Regularizer {regularizer} not supported. The available options are: "{regularizers_str}".'
+                f"Regularizer {regularizer} not supported. The available options are:"
+                f' "{regularizers_str}".'
             )
         return self._REGULARIZERS[regularizer]()
 
 
 class SparsePolyRegressorMixin(RegressorMixin):
-
     _LOSSES = REGRESSION_LOSSES
 
     def _check_X_y(self, X, y):
@@ -65,7 +66,6 @@ class SparsePolyRegressorMixin(RegressorMixin):
 
 
 class SparsePolyClassifierMixin(ClassifierMixin):
-
     _LOSSES = CLASSIFICATION_LOSSES
 
     def decision_function(self, X):

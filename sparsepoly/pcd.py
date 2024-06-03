@@ -2,7 +2,6 @@
 # Author: Kyohei Atarashi
 # License: MIT
 
-import numpy as np
 from numba import njit
 
 

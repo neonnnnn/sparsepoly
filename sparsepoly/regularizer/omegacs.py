@@ -1,7 +1,7 @@
 from math import sqrt
 
 import numpy as np
-from numba import boolean, float64
+from numba import float64
 from numba.experimental import jitclass
 
 from .utils import norm
@@ -53,9 +53,9 @@ class OmegaCS(object):
         if degree > 0:  # factorization machine
             self._cache[1:] = 0.0
             self._cache[0] = 1.0
-            for norm in self._norms:
+            for _norm in self._norms:
                 for deg in range(degree):
-                    self._cache[degree - deg] += self._cache[degree - deg - 1] * norm
+                    self._cache[degree - deg] += self._cache[degree - deg - 1] * _norm
         else:  # all-subsets
             self._cache_all_subsets = 1.0
             for l2 in self._norms:

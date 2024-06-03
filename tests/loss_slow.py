@@ -2,8 +2,6 @@
 # Author: Kyohei Atarashi
 # License: MIT
 
-from abc import ABCMeta, abstractmethod
-
 import numpy as np
 
 
