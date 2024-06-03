@@ -15,10 +15,10 @@ This package provides some solvers for optimizing FM-like models with some regul
 
 | Regularizer \ Purpose | Feature Interaction Selection | Feature Selection |
 | ---- | ---- | ---- |
-| ```l1```| ✘ | ✔ |
-| ```l21``` | ✘ | ✔ |
-| ```squaredl12``` (```omegati```) | ✔ | ✔ |
-| ```squaredl21``` (```omegacs```) | ✘ | ✔ |
+| ```l1```| ✗ | ✓ |
+| ```l21``` | ✗ | ✓ |
+| ```squaredl12``` (```omegati```) | ✓ (recommended) | ✓ |
+| ```squaredl21``` (```omegacs```) | ✗ | ✓ (recommended) |
 
 For more detail, please see our paper.
 
