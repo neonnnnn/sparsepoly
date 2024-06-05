@@ -11,15 +11,16 @@ from sklearn.utils import check_random_state
 from sklearn.utils.extmath import row_norms, safe_sparse_dot
 from sklearn.utils.validation import NotFittedError, check_array
 
-from .base import BaseSparsePoly, SparsePolyClassifierMixin, SparsePolyRegressorMixin
-from .cd_linear import _cd_linear_epoch
-from .dataset import get_dataset
-from .kernels import poly_predict
-from .loss import CLASSIFICATION_LOSSES, REGRESSION_LOSSES
-from .pbcd import pbcd_epoch
-from .pcd import pcd_epoch
-from .psgd import psgd_epoch
-from .regularizer import REGULARIZATION
+from sparsepoly.base import (
+    BaseSparsePoly,
+    SparsePolyClassifierMixin,
+    SparsePolyRegressorMixin,
+)
+from sparsepoly.dataset import get_dataset
+from sparsepoly.kernels import poly_predict
+from sparsepoly.loss import CLASSIFICATION_LOSSES, REGRESSION_LOSSES
+from sparsepoly.optimizer import cd_linear, pbcd, pcd, psgd
+from sparsepoly.regularizer import REGULARIZATION
 
 LEARNING_RATE = {"constant": 0, "optimal": 1, "pegasos": 2, "invscaling": 3}
 
@@ -123,7 +124,7 @@ class _BaseSparseFactorizationMachine(BaseSparsePoly, metaclass=ABCMeta):
             if self.shuffle:
                 rng.shuffle(indices_samples)
 
-            sum_loss, self.it_ = psgd_epoch(
+            sum_loss, self.it_ = psgd.psgd_epoch(
                 X,
                 y,
                 P,
@@ -199,13 +200,13 @@ class _BaseSparseFactorizationMachine(BaseSparsePoly, metaclass=ABCMeta):
                 rng.shuffle(indices_feature)
 
             if self.fit_linear:
-                viol += _cd_linear_epoch(
+                viol += cd_linear._cd_linear_epoch(
                     self.w_, X, y, y_pred, col_norm_sq, alpha, loss_obj, indices_feature
                 )
 
             if self.fit_lower == "explicit":
                 for deg in range(2, self.degree):
-                    viol += pcd_epoch(
+                    viol += pcd.pcd_epoch(
                         self.P_[self.degree - deg],
                         X,
                         y,
@@ -223,7 +224,7 @@ class _BaseSparseFactorizationMachine(BaseSparsePoly, metaclass=ABCMeta):
                         indices_feature,
                     )
 
-            viol += pcd_epoch(
+            viol += pcd.pcd_epoch(
                 self.P_[0],
                 X,
                 y,
@@ -289,13 +290,13 @@ class _BaseSparseFactorizationMachine(BaseSparsePoly, metaclass=ABCMeta):
                 rng.shuffle(indices_feature)
 
             if self.fit_linear:
-                viol += _cd_linear_epoch(
+                viol += cd_linear._cd_linear_epoch(
                     self.w_, X, y, y_pred, col_norm_sq, alpha, loss_obj, indices_feature
                 )
 
             if self.fit_lower == "explicit":
                 for deg in range(2, self.degree):
-                    viol += pbcd_epoch(
+                    viol += pbcd.pbcd_epoch(
                         P[self.degree - deg],
                         X,
                         y,
@@ -315,7 +316,7 @@ class _BaseSparseFactorizationMachine(BaseSparsePoly, metaclass=ABCMeta):
                         indices_feature,
                     )
 
-            viol += pbcd_epoch(
+            viol += pbcd.pbcd_epoch(
                 P[0],
                 X,
                 y,

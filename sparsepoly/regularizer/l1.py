@@ -2,7 +2,7 @@ import numpy as np
 from numba import boolean
 from numba.experimental import jitclass
 
-from .utils import norm, soft_thresholding
+from sparsepoly.regularizer.utils import norm, soft_thresholding
 
 spec = [
     ("transpose", boolean),

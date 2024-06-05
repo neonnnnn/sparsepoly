@@ -11,7 +11,7 @@ from sklearn.preprocessing import LabelBinarizer
 from sklearn.utils.multiclass import type_of_target
 from sklearn.utils.validation import check_X_y
 
-from .loss import CLASSIFICATION_LOSSES, REGRESSION_LOSSES
+from sparsepoly.loss import CLASSIFICATION_LOSSES, REGRESSION_LOSSES
 
 
 class BaseSparsePoly(BaseEstimator, metaclass=ABCMeta):
