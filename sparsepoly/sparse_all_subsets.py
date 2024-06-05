@@ -18,13 +18,16 @@ except ImportError:
         pass
 
 
-from .base import BaseSparsePoly, SparsePolyClassifierMixin, SparsePolyRegressorMixin
-from .dataset import get_dataset
-from .kernels import poly_predict
-from .loss import CLASSIFICATION_LOSSES, REGRESSION_LOSSES
-from .pbcd_all import pbcd_epoch
-from .pcd_all import pcd_epoch
-from .regularizer import L1, L21, OmegaCS, OmegaTI
+from sparsepoly.base import (
+    BaseSparsePoly,
+    SparsePolyClassifierMixin,
+    SparsePolyRegressorMixin,
+)
+from sparsepoly.dataset import get_dataset
+from sparsepoly.kernels import poly_predict
+from sparsepoly.loss import CLASSIFICATION_LOSSES, REGRESSION_LOSSES
+from sparsepoly.optimizer import pbcd_all, pcd_all
+from sparsepoly.regularizer import L1, L21, OmegaCS, OmegaTI
 
 
 class _BaseSparseAllSubsets(BaseSparsePoly, metaclass=ABCMeta):
@@ -101,7 +104,7 @@ class _BaseSparseAllSubsets(BaseSparsePoly, metaclass=ABCMeta):
                 rng.shuffle(indices_component)
                 rng.shuffle(indices_feature)
 
-            viol += pcd_epoch(
+            viol += pcd_all.pcd_epoch(
                 self.P_,
                 X,
                 y,
@@ -162,7 +165,7 @@ class _BaseSparseAllSubsets(BaseSparsePoly, metaclass=ABCMeta):
             if self.shuffle:
                 rng.shuffle(indices_feature)
 
-            viol += pbcd_epoch(
+            viol += pbcd_all.pbcd_epoch(
                 P,
                 X,
                 y,

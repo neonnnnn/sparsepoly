@@ -4,7 +4,7 @@ import numpy as np
 from numba import float64
 from numba.experimental import jitclass
 
-from .utils import norm
+from sparsepoly.regularizer.utils import norm
 
 spec = [
     ("_norms", float64[:]),

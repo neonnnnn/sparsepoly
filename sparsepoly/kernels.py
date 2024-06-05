@@ -8,7 +8,7 @@ from scipy.sparse import issparse
 from sklearn.metrics.pairwise import polynomial_kernel
 from sklearn.utils.extmath import safe_sparse_dot
 
-from .dataset import get_dataset
+from sparsepoly.dataset import get_dataset
 
 
 def safe_power(X, degree=2):

@@ -4,7 +4,7 @@ import numpy as np
 from numba import boolean
 from numba.experimental import jitclass
 
-from .utils import norm
+from sparsepoly.regularizer.utils import norm
 
 spec = [
     ("transpose", boolean),
